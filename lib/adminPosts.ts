@@ -4,6 +4,11 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { apiVersion, dataset, projectId } from './sanity'
 
+export type AdminActionState = {
+  status: 'idle' | 'error'
+  message?: string
+}
+
 type PortableTextBlock = {
   _type: 'block'
   _key: string
@@ -21,7 +26,7 @@ function requireToken() {
   const token = process.env.SANITY_API_TOKEN
 
   if (!token) {
-    throw new Error('Missing SANITY_API_TOKEN')
+    throw new Error('Vercel 里还没有添加 SANITY_API_TOKEN，或者添加后还没有重新部署。')
   }
 
   return token
@@ -97,8 +102,16 @@ async function sanityMutate(mutations: unknown[]) {
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(`Sanity mutation failed: ${response.status} ${text}`)
+    throw new Error(`Sanity 保存失败：${response.status} ${text}`)
   }
+}
+
+function actionError(error: unknown): AdminActionState {
+  if (error instanceof Error) {
+    return { status: 'error', message: error.message }
+  }
+
+  return { status: 'error', message: '发布失败：服务器没有返回具体错误。' }
 }
 
 function revalidateAdminAndSite(category?: string, slug?: string) {
@@ -117,70 +130,84 @@ function revalidateAdminAndSite(category?: string, slug?: string) {
   }
 }
 
-export async function createPost(formData: FormData) {
-  const title = requiredString(formData, 'title')
-  const slugText = optionalString(formData, 'slugText') || title
-  const slug = slugifyWithDate(slugText)
-  const category = requiredString(formData, 'category')
-  const visibility = requiredString(formData, 'visibility')
-  const language = requiredString(formData, 'language')
-  const publishedAt = optionalString(formData, 'publishedAt')
-  const bodyText = String(formData.get('body') || '')
+export async function createPost(_prevState: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  let category: string | undefined
+  let slug: string | undefined
 
-  await sanityMutate([
-    {
-      create: {
-        _type: 'post',
-        title,
-        slugText,
-        slug: { _type: 'slug', current: slug },
-        language,
-        category,
-        visibility,
-        excerpt: optionalString(formData, 'excerpt'),
-        publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
-        body: bodyToBlocks(bodyText)
+  try {
+    const title = requiredString(formData, 'title')
+    const slugText = optionalString(formData, 'slugText') || title
+    slug = slugifyWithDate(slugText)
+    category = requiredString(formData, 'category')
+    const visibility = requiredString(formData, 'visibility')
+    const language = requiredString(formData, 'language')
+    const publishedAt = optionalString(formData, 'publishedAt')
+    const bodyText = String(formData.get('body') || '')
+
+    await sanityMutate([
+      {
+        create: {
+          _type: 'post',
+          title,
+          slugText,
+          slug: { _type: 'slug', current: slug },
+          language,
+          category,
+          visibility,
+          excerpt: optionalString(formData, 'excerpt'),
+          publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+          body: bodyToBlocks(bodyText)
+        }
       }
-    }
-  ])
+    ])
+  } catch (error) {
+    return actionError(error)
+  }
 
   revalidateAdminAndSite(category, slug)
   redirect('/admin')
 }
 
-export async function updatePost(formData: FormData) {
-  const id = requiredString(formData, '_id')
-  const title = requiredString(formData, 'title')
-  const category = requiredString(formData, 'category')
-  const visibility = requiredString(formData, 'visibility')
-  const language = requiredString(formData, 'language')
-  const publishedAt = optionalString(formData, 'publishedAt')
-  const currentSlug = optionalString(formData, 'currentSlug')
-  const slugText = optionalString(formData, 'slugText')
-  const bodyText = String(formData.get('body') || '')
-  const nextSlug = slugText ? slugifyWithDate(slugText) : currentSlug
+export async function updatePost(_prevState: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  let category: string | undefined
+  let nextSlug: string | undefined
 
-  await sanityMutate([
-    {
-      patch: {
-        id,
-        set: {
-          title,
-          language,
-          category,
-          visibility,
-          excerpt: optionalString(formData, 'excerpt'),
-          publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
-          body: bodyToBlocks(bodyText),
-          ...(slugText ? {
-            slugText,
-            slug: { _type: 'slug', current: nextSlug }
-          } : {})
+  try {
+    const id = requiredString(formData, '_id')
+    const title = requiredString(formData, 'title')
+    category = requiredString(formData, 'category')
+    const visibility = requiredString(formData, 'visibility')
+    const language = requiredString(formData, 'language')
+    const publishedAt = optionalString(formData, 'publishedAt')
+    const currentSlug = optionalString(formData, 'currentSlug')
+    const slugText = optionalString(formData, 'slugText')
+    const bodyText = String(formData.get('body') || '')
+    nextSlug = slugText ? slugifyWithDate(slugText) : currentSlug
+
+    await sanityMutate([
+      {
+        patch: {
+          id,
+          set: {
+            title,
+            language,
+            category,
+            visibility,
+            excerpt: optionalString(formData, 'excerpt'),
+            publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
+            body: bodyToBlocks(bodyText),
+            ...(slugText ? {
+              slugText,
+              slug: { _type: 'slug', current: nextSlug }
+            } : {})
+          },
+          unset: publishedAt ? [] : ['publishedAt']
         },
-        unset: publishedAt ? [] : ['publishedAt']
       }
-    }
-  ])
+    ])
+  } catch (error) {
+    return actionError(error)
+  }
 
   revalidateAdminAndSite(category, nextSlug)
   redirect('/admin')

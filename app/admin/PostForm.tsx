@@ -1,3 +1,8 @@
+'use client'
+
+import { useActionState } from 'react'
+import type { AdminActionState } from '../../lib/adminPosts'
+
 type AdminEditablePost = {
   _id?: string
   title?: string
@@ -12,7 +17,7 @@ type AdminEditablePost = {
 }
 
 type PostFormProps = {
-  action: (formData: FormData) => Promise<void>
+  action: (prevState: AdminActionState, formData: FormData) => Promise<AdminActionState>
   post?: AdminEditablePost
   mode: 'create' | 'edit'
   canSave: boolean
@@ -83,14 +88,22 @@ const noticeStyle = {
 }
 
 export default function PostForm({ action, post, mode, canSave }: PostFormProps) {
+  const [state, formAction, isPending] = useActionState(action, { status: 'idle' } as AdminActionState)
+
   return (
-    <form action={action} className="admin-form" style={formStyle}>
+    <form action={formAction} className="admin-form" style={formStyle}>
       {post?._id && <input type="hidden" name="_id" value={post._id} />}
       {post?.slug?.current && <input type="hidden" name="currentSlug" value={post.slug.current} />}
 
       {!canSave && (
         <div className="admin-notice" style={noticeStyle}>
           还不能保存：需要在 Vercel 里添加 <code>SANITY_API_TOKEN</code>。界面可以先看，接好 token 后这里就能直接写入内容。
+        </div>
+      )}
+
+      {state.status === 'error' && (
+        <div className="admin-notice" style={{ ...noticeStyle, borderColor: 'rgba(164, 61, 42, .22)', background: 'rgba(247, 218, 209, .42)', color: 'rgba(118, 38, 24, .92)' }}>
+          {state.message}
         </div>
       )}
 
@@ -157,7 +170,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
       <div className="admin-form-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '6px' }}>
         <button
           type="submit"
-          disabled={!canSave}
+          disabled={!canSave || isPending}
           style={{
             minHeight: '38px',
             padding: '0 16px',
@@ -165,10 +178,10 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
             borderRadius: '5px',
             background: 'rgba(8, 13, 19, .94)',
             color: 'rgba(255, 255, 255, .92)',
-            opacity: canSave ? 1 : .45
+            opacity: canSave && !isPending ? 1 : .45
           }}
         >
-          {mode === 'create' ? '发布文章' : '保存修改'}
+          {isPending ? '正在保存...' : mode === 'create' ? '发布文章' : '保存修改'}
         </button>
         <a href="/admin" style={{ color: 'rgba(77, 88, 92, .72)', fontSize: '13px' }}>取消</a>
       </div>
