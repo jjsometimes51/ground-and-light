@@ -34,6 +34,15 @@ const categoryLabels: Record<string, string> = {
   Musings: '随想'
 }
 
+const menuItems = [
+  ['•', '概览', '/admin'],
+  ['✦', '所有文章', '/admin'],
+  ['＋', '更新文章', '/studio'],
+  ['⌕', 'About', '/about'],
+  ['◒', '访客统计', '/admin'],
+  ['※', '评论管理', '/admin']
+]
+
 function formatDate(value?: string) {
   if (!value) return '未定'
 
@@ -67,23 +76,21 @@ export default async function AdminPage() {
       <aside className="admin-sidebar">
         <Link href="/" className="admin-brand">Ground & Light</Link>
         <nav className="admin-menu" aria-label="Admin navigation">
-          <Link href="/admin" className="active">概览</Link>
-          <Link href="/admin" className="active">所有文章</Link>
-          <Link href="/studio">写新文章</Link>
-          <Link href="/about">About</Link>
-          <Link href="/studio">内容设置</Link>
+          {menuItems.map(([icon, label, href], index) => (
+            <Link key={label} href={href} className={index === 1 ? 'active' : undefined}>
+              <span>{icon}</span>
+              {label}
+            </Link>
+          ))}
         </nav>
         <div className="admin-sidebar-footer">
-          <Link href="/studio">进入编辑器</Link>
+          <Link href="/studio">设置</Link>
         </div>
       </aside>
 
       <section className="admin-content">
         <header className="admin-topbar">
-          <div>
-            <p className="admin-kicker">Content</p>
-            <h1>所有文章 <span>{posts.length} 篇</span></h1>
-          </div>
+          <h1>所有文章 <span>{posts.length} 篇</span></h1>
           <Link href="/studio" className="admin-primary-button">+ 写新文章</Link>
         </header>
 
@@ -116,8 +123,8 @@ export default async function AdminPage() {
               </span>
               <span className="admin-date">{formatDate(post.publishedAt || post._createdAt)}</span>
               <span className="admin-actions">
-                {post.slug?.current && <Link href={`/post/${post.slug.current}`}>查看</Link>}
                 <Link href={studioDocumentUrl(post._id)}>编辑</Link>
+                <Link href={studioDocumentUrl(post._id)} className="danger">删除</Link>
               </span>
             </article>
           ))}
