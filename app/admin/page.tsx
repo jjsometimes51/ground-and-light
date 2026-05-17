@@ -37,7 +37,7 @@ const categoryLabels: Record<string, string> = {
 const menuItems = [
   ['•', '概览', '/admin'],
   ['✦', '所有文章', '/admin'],
-  ['＋', '更新文章', '/studio'],
+  ['＋', '更新文章', '/studio/intent/create/template=post;type=post'],
   ['⌕', 'About', '/about'],
   ['◒', '访客统计', '/admin'],
   ['※', '评论管理', '/admin']
@@ -54,8 +54,10 @@ function formatDate(value?: string) {
 }
 
 function studioDocumentUrl(id: string) {
-  return `/studio/structure/post;${encodeURIComponent(id.replace(/^drafts\./, ''))}`
+  return `/studio/intent/edit/id=${encodeURIComponent(id.replace(/^drafts\./, ''))};type=post`
 }
+
+const createPostUrl = '/studio/intent/create/template=post;type=post'
 
 export default async function AdminPage() {
   const posts = await withTimeout(sanityFetch<AdminPost[]>(
@@ -91,7 +93,7 @@ export default async function AdminPage() {
       <section className="admin-content">
         <header className="admin-topbar">
           <h1>所有文章 <span>{posts.length} 篇</span></h1>
-          <Link href="/studio" className="admin-primary-button">+ 写新文章</Link>
+          <Link href={createPostUrl} className="admin-primary-button">+ 写新文章</Link>
         </header>
 
         <div className="admin-table" role="table" aria-label="Posts">
