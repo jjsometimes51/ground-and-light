@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { sanityFetch, withTimeout } from '../../lib/sanity'
+import { requireAdminAuth } from '../../lib/adminAuth'
 import AdminShell from './AdminShell'
 
 export const metadata: Metadata = {
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
     follow: false
   }
 }
+
+export const dynamic = 'force-dynamic'
 
 type AdminPost = {
   _id: string
@@ -52,6 +55,8 @@ function adminEditUrl(id: string) {
 const createPostUrl = '/admin/new'
 
 export default async function AdminPage() {
+  await requireAdminAuth()
+
   const posts = await withTimeout(sanityFetch<AdminPost[]>(
     `*[_type == "post"] | order(coalesce(publishedAt, _createdAt) desc){
       _id,

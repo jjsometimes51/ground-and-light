@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import AdminShell from '../AdminShell'
 import PostForm from '../PostForm'
 import { updatePost } from '../../../lib/adminPosts'
+import { requireAdminAuth } from '../../../lib/adminAuth'
 import { sanityFetch, withTimeout } from '../../../lib/sanity'
 
 export const metadata: Metadata = {
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
     follow: false
   }
 }
+
+export const dynamic = 'force-dynamic'
 
 type EditablePost = {
   _id: string
@@ -36,6 +39,8 @@ function bodyToText(body?: EditablePost['body']) {
 }
 
 export default async function EditPostPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+  await requireAdminAuth()
+
   const { id } = await searchParams
   const post = id ? await withTimeout(sanityFetch<EditablePost | null>(
     `*[_type == "post" && _id == $id][0]{

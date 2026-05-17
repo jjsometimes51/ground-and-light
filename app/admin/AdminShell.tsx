@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { logoutFromAdmin } from '../../lib/adminAuth'
 
 const menuItems = [
   ['•', '概览', '/admin'],
@@ -25,6 +26,9 @@ export default function AdminShell({ children, active = '所有文章' }: { chil
         </nav>
         <div className="admin-sidebar-footer">
           <Link href="/studio">高级设置</Link>
+          <form action={logoutFromAdmin}>
+            <button type="submit">退出后台</button>
+          </form>
         </div>
       </aside>
       <section className="admin-content">
