@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { sanityFetch, withTimeout } from '../../lib/sanity'
+import AdminShell from './AdminShell'
 
 export const metadata: Metadata = {
   title: 'Admin',
@@ -34,15 +35,6 @@ const categoryLabels: Record<string, string> = {
   Musings: '随想'
 }
 
-const menuItems = [
-  ['•', '概览', '/admin'],
-  ['✦', '所有文章', '/admin'],
-  ['＋', '更新文章', '/studio/intent/create/template=post;type=post'],
-  ['⌕', 'About', '/about'],
-  ['◒', '访客统计', '/admin'],
-  ['※', '评论管理', '/admin']
-]
-
 function formatDate(value?: string) {
   if (!value) return '未定'
 
@@ -53,11 +45,11 @@ function formatDate(value?: string) {
   }).format(new Date(value)).replaceAll('/', '.')
 }
 
-function studioDocumentUrl(id: string) {
-  return `/studio/intent/edit/id=${encodeURIComponent(id.replace(/^drafts\./, ''))};type=post`
+function adminEditUrl(id: string) {
+  return `/admin/edit?id=${encodeURIComponent(id.replace(/^drafts\./, ''))}`
 }
 
-const createPostUrl = '/studio/intent/create/template=post;type=post'
+const createPostUrl = '/admin/new'
 
 export default async function AdminPage() {
   const posts = await withTimeout(sanityFetch<AdminPost[]>(
@@ -74,23 +66,7 @@ export default async function AdminPage() {
   ).catch(() => []), [], 5000)
 
   return (
-    <main className="admin-shell">
-      <aside className="admin-sidebar">
-        <Link href="/" className="admin-brand">Ground & Light</Link>
-        <nav className="admin-menu" aria-label="Admin navigation">
-          {menuItems.map(([icon, label, href], index) => (
-            <Link key={label} href={href} className={index === 1 ? 'active' : undefined}>
-              <span>{icon}</span>
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="admin-sidebar-footer">
-          <Link href="/studio">设置</Link>
-        </div>
-      </aside>
-
-      <section className="admin-content">
+    <AdminShell>
         <header className="admin-topbar">
           <h1>所有文章 <span>{posts.length} 篇</span></h1>
           <Link href={createPostUrl} className="admin-primary-button">+ 写新文章</Link>
@@ -125,13 +101,12 @@ export default async function AdminPage() {
               </span>
               <span className="admin-date">{formatDate(post.publishedAt || post._createdAt)}</span>
               <span className="admin-actions">
-                <Link href={studioDocumentUrl(post._id)}>编辑</Link>
-                <Link href={studioDocumentUrl(post._id)} className="danger">删除</Link>
+                <Link href={adminEditUrl(post._id)}>编辑</Link>
+                <Link href={adminEditUrl(post._id)} className="danger">删除</Link>
               </span>
             </article>
           ))}
         </div>
-      </section>
-    </main>
+    </AdminShell>
   )
 }
