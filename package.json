@@ -1,0 +1,33 @@
+{
+  "name": "sometimes-blog",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "dev:webpack": "next dev --webpack",
+    "dev:codex": "NEXT_TEST_WASM=1 NEXT_TEST_WASM_DIR=./node_modules/@next/swc-wasm-nodejs next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sanity/image-url": "2.1.1",
+    "@sanity/vision": "5.25.0",
+    "next": "16.2.6",
+    "next-sanity": "12.4.5",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "sanity": "5.25.0",
+    "styled-components": "6.4.1"
+  },
+  "devDependencies": {
+    "@next/swc-wasm-nodejs": "16.2.6",
+    "@types/node": "25.7.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.6",
+    "typescript": "5.9.3"
+  }
+}
