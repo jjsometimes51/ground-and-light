@@ -19,12 +19,14 @@ export const dynamic = 'force-dynamic'
 type EditablePost = {
   _id: string
   title?: string
+  titleEn?: string
   slugText?: string
   slug?: { current?: string }
   language?: string
   category?: string
   excerpt?: string
   visibility?: string
+  featured?: boolean
   publishedAt?: string
   body?: Array<{
     children?: Array<{ text?: string }>
@@ -46,12 +48,14 @@ export default async function EditPostPage({ searchParams }: { searchParams: Pro
     `*[_type == "post" && _id == $id][0]{
       _id,
       title,
+      titleEn,
       slugText,
       slug,
       language,
       category,
       excerpt,
       visibility,
+      featured,
       publishedAt,
       body[_type == "block"]{
         children[]{text}

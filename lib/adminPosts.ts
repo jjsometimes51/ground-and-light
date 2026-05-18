@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { apiVersion, dataset, projectId } from './sanity'
+import { requireAdminAuth } from './adminAuth'
 
 export type AdminActionState = {
   status: 'idle' | 'error'
@@ -131,6 +132,8 @@ function revalidateAdminAndSite(category?: string, slug?: string) {
 }
 
 export async function createPost(_prevState: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  await requireAdminAuth()
+
   let category: string | undefined
   let slug: string | undefined
 
@@ -149,11 +152,13 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
         create: {
           _type: 'post',
           title,
+          titleEn: optionalString(formData, 'titleEn'),
           slugText,
           slug: { _type: 'slug', current: slug },
           language,
           category,
           visibility,
+          featured: formData.get('featured') === 'on',
           excerpt: optionalString(formData, 'excerpt'),
           publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
           body: bodyToBlocks(bodyText)
@@ -165,10 +170,12 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
   }
 
   revalidateAdminAndSite(category, slug)
-  redirect('/admin')
+  redirect('/admin/posts')
 }
 
 export async function updatePost(_prevState: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  await requireAdminAuth()
+
   let category: string | undefined
   let nextSlug: string | undefined
 
@@ -190,9 +197,11 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
           id,
           set: {
             title,
+            titleEn: optionalString(formData, 'titleEn'),
             language,
             category,
             visibility,
+            featured: formData.get('featured') === 'on',
             excerpt: optionalString(formData, 'excerpt'),
             publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
             body: bodyToBlocks(bodyText),
@@ -210,5 +219,22 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
   }
 
   revalidateAdminAndSite(category, nextSlug)
-  redirect('/admin')
+  redirect('/admin/posts')
+}
+
+export async function deletePost(formData: FormData) {
+  await requireAdminAuth()
+
+  const id = requiredString(formData, '_id')
+
+  await sanityMutate([
+    {
+      delete: {
+        id
+      }
+    }
+  ])
+
+  revalidateAdminAndSite()
+  redirect('/admin/posts')
 }

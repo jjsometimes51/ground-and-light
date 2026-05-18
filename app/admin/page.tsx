@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { sanityFetch, withTimeout } from '../../lib/sanity'
 import { requireAdminAuth } from '../../lib/adminAuth'
 import AdminShell from './AdminShell'
+import AdminPostTable, { type AdminPost } from './AdminPostTable'
 
 export const metadata: Metadata = {
   title: 'Admin',
@@ -14,30 +14,6 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-type AdminPost = {
-  _id: string
-  title?: string
-  excerpt?: string
-  category?: string
-  visibility?: 'public' | 'unlisted' | 'private'
-  publishedAt?: string
-  _createdAt?: string
-  slug?: { current?: string }
-}
-
-const visibilityLabels: Record<string, string> = {
-  public: '公开',
-  unlisted: '隐藏',
-  private: '私密'
-}
-
-const categoryLabels: Record<string, string> = {
-  Travel: '旅行笔记',
-  Notes: '文章',
-  Work: '工作',
-  Musings: '随想'
-}
-
 function formatDate(value?: string) {
   if (!value) return '未定'
 
@@ -46,10 +22,6 @@ function formatDate(value?: string) {
     month: '2-digit',
     day: '2-digit'
   }).format(new Date(value)).replaceAll('/', '.')
-}
-
-function adminEditUrl(id: string) {
-  return `/admin/edit?id=${encodeURIComponent(id.replace(/^drafts\./, ''))}`
 }
 
 const createPostUrl = '/admin/new'
@@ -64,54 +36,53 @@ export default async function AdminPage() {
       excerpt,
       category,
       visibility,
+      featured,
       publishedAt,
       _createdAt,
       slug
     }`
   ).catch(() => []), [], 5000)
+  const today = new Date().toISOString().slice(0, 10)
+  const counts = {
+    all: posts.length,
+    notes: posts.filter(post => post.category === 'Notes').length,
+    musings: posts.filter(post => post.category === 'Musings').length,
+    travel: posts.filter(post => post.category === 'Travel').length
+  }
 
   return (
-    <AdminShell>
+    <AdminShell active="概览">
         <header className="admin-topbar">
-          <h1>所有文章 <span>{posts.length} 篇</span></h1>
-          <Link href={createPostUrl} className="admin-primary-button">+ 写新文章</Link>
+          <h1>概览 <span>{formatDate(today)}</span></h1>
+          <a href={createPostUrl} className="admin-primary-button">+ 写新文章</a>
         </header>
 
-        <div className="admin-table" role="table" aria-label="Posts">
-          <div className="admin-row admin-row-head" role="row">
-            <span>标题</span>
-            <span>推荐</span>
-            <span>可见性</span>
-            <span>分类</span>
-            <span>日期</span>
-            <span>操作</span>
-          </div>
+        <section className="admin-stat-grid" aria-label="Post summary">
+          <article className="admin-stat-card">
+            <strong>{counts.all}</strong>
+            <span>总文章数</span>
+          </article>
+          <article className="admin-stat-card">
+            <strong>{counts.notes}</strong>
+            <span>文章</span>
+            <small>Notes</small>
+          </article>
+          <article className="admin-stat-card">
+            <strong>{counts.musings}</strong>
+            <span>随想</span>
+            <small>Musings</small>
+          </article>
+          <article className="admin-stat-card">
+            <strong>{counts.travel}</strong>
+            <span>旅行笔记</span>
+            <small>Travel</small>
+          </article>
+        </section>
 
-          {posts.map(post => (
-            <article className="admin-row" role="row" key={post._id}>
-              <div className="admin-title-cell">
-                <strong>{post.title || 'Untitled'}</strong>
-                {post.excerpt && <p>{post.excerpt}</p>}
-              </div>
-              <span className="admin-feature">☆</span>
-              <span>
-                <mark className={`admin-pill visibility-${post.visibility || 'public'}`}>
-                  {visibilityLabels[post.visibility || 'public']}
-                </mark>
-              </span>
-              <span>
-                <mark className="admin-pill category-pill">
-                  {categoryLabels[post.category || ''] || post.category || '未分类'}
-                </mark>
-              </span>
-              <span className="admin-date">{formatDate(post.publishedAt || post._createdAt)}</span>
-              <span className="admin-actions">
-                <Link href={adminEditUrl(post._id)}>编辑</Link>
-                <Link href={adminEditUrl(post._id)} className="danger">删除</Link>
-              </span>
-            </article>
-          ))}
-        </div>
+        <section className="admin-section">
+          <h2>最近文章</h2>
+          <AdminPostTable posts={posts.slice(0, 6)} label="Recent posts" />
+        </section>
     </AdminShell>
   )
 }

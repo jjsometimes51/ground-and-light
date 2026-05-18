@@ -20,6 +20,7 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: Rule => Rule.required() }),
+    defineField({ name: 'titleEn', title: 'English title', type: 'string' }),
     defineField({
       name: 'slugText',
       title: 'Slug text',
@@ -79,6 +80,7 @@ export default defineType({
     }),
     defineField({ name: 'excerpt', title: 'Excerpt', type: 'text', rows: 3 }),
     defineField({ name: 'coverImage', title: 'Cover image', type: 'image', options: { hotspot: true } }),
+    defineField({ name: 'featured', title: 'Featured on homepage', type: 'boolean', initialValue: false }),
     defineField({ name: 'audio', title: 'Audio file', type: 'file', options: { accept: 'audio/*' } }),
     defineField({ name: 'video', title: 'Video file', type: 'file', options: { accept: 'video/*' } }),
     defineField({

@@ -6,12 +6,14 @@ import type { AdminActionState } from '../../lib/adminPosts'
 type AdminEditablePost = {
   _id?: string
   title?: string
+  titleEn?: string
   slugText?: string
   slug?: { current?: string }
   language?: string
   category?: string
   excerpt?: string
   visibility?: string
+  featured?: boolean
   publishedAt?: string
   bodyText?: string
 }
@@ -31,12 +33,13 @@ function datetimeLocal(value?: string) {
 }
 
 const formStyle = {
-  maxWidth: '980px',
+  maxWidth: '900px',
   display: 'grid',
   gap: '18px',
-  padding: '22px',
+  padding: '28px',
   border: '1px solid rgba(106, 132, 142, .13)',
-  background: 'rgba(255, 255, 255, .2)',
+  borderRadius: '8px',
+  background: 'rgba(255, 255, 255, .24)',
   boxShadow: '0 16px 42px rgba(35, 63, 75, .035)'
 }
 
@@ -59,20 +62,20 @@ const labelTextStyle = {
 
 const controlStyle = {
   width: '100%',
-  minHeight: '42px',
+  minHeight: '48px',
   border: '1px solid rgba(71, 94, 104, .18)',
   borderRadius: '6px',
-  background: 'rgba(255, 255, 255, .48)',
+  background: 'rgba(255, 255, 255, .56)',
   color: 'rgba(12, 16, 18, .88)',
   font: 'inherit',
   fontSize: '14px',
-  padding: '0 12px'
+  padding: '0 14px'
 }
 
 const textareaStyle = {
   ...controlStyle,
   minHeight: undefined,
-  padding: '12px',
+  padding: '14px',
   lineHeight: 1.65,
   resize: 'vertical' as const
 }
@@ -91,9 +94,28 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
   const [state, formAction, isPending] = useActionState(action, { status: 'idle' } as AdminActionState)
 
   return (
-    <form action={formAction} className="admin-form" style={formStyle}>
+    <form action={formAction} className="admin-form admin-editor-form" style={formStyle}>
       {post?._id && <input type="hidden" name="_id" value={post._id} />}
       {post?.slug?.current && <input type="hidden" name="currentSlug" value={post.slug.current} />}
+
+      <div className="admin-editor-actions">
+        <a href="/admin/posts">取消</a>
+        <button type="submit" disabled={!canSave || isPending}>
+          {isPending ? '正在保存...' : mode === 'create' ? '发布文章' : '保存修改'}
+        </button>
+      </div>
+
+      <div className="admin-editor-toolbar" aria-label="Editor tools">
+        <button type="button">B</button>
+        <button type="button">/</button>
+        <button type="button">H2</button>
+        <button type="button">H3</button>
+        <button type="button">引用</button>
+        <button type="button">分割线</button>
+        <button type="button">图片链接</button>
+        <button type="button">上传图片</button>
+        <button type="button">上传视频</button>
+      </div>
 
       {!canSave && (
         <div className="admin-notice" style={noticeStyle}>
@@ -107,10 +129,17 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         </div>
       )}
 
-      <label className="admin-field admin-field-wide" style={fieldStyle}>
-        <span style={labelTextStyle}>标题</span>
-        <input name="title" defaultValue={post?.title || ''} required placeholder="On the way back" style={controlStyle} />
-      </label>
+      <div className="admin-editor-two">
+        <label className="admin-field" style={fieldStyle}>
+          <span style={labelTextStyle}>标题（中文）</span>
+          <input name="title" defaultValue={post?.title || ''} required placeholder="文章标题" style={controlStyle} />
+        </label>
+
+        <label className="admin-field" style={fieldStyle}>
+          <span style={labelTextStyle}>TITLE (ENGLISH)</span>
+          <input name="titleEn" defaultValue={post?.titleEn || ''} placeholder="Article title in English" style={controlStyle} />
+        </label>
+      </div>
 
       <div className="admin-form-grid" style={gridStyle}>
         <label className="admin-field" style={fieldStyle}>
@@ -133,16 +162,16 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         </label>
 
         <label className="admin-field" style={fieldStyle}>
+          <span style={labelTextStyle}>发布时间</span>
+          <input name="publishedAt" type="datetime-local" defaultValue={datetimeLocal(post?.publishedAt)} style={controlStyle} />
+        </label>
+
+        <label className="admin-field" style={fieldStyle}>
           <span style={labelTextStyle}>语言</span>
           <select name="language" defaultValue={post?.language || 'en'} required style={controlStyle}>
             <option value="en">English</option>
             <option value="zh">中文</option>
           </select>
-        </label>
-
-        <label className="admin-field" style={fieldStyle}>
-          <span style={labelTextStyle}>发布时间</span>
-          <input name="publishedAt" type="datetime-local" defaultValue={datetimeLocal(post?.publishedAt)} style={controlStyle} />
         </label>
       </div>
 
@@ -162,29 +191,22 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         <textarea name="excerpt" rows={3} defaultValue={post?.excerpt || ''} style={textareaStyle} />
       </label>
 
+      <div className="admin-editor-media">
+        <div>
+          <span>封面图（首页推荐卡片显示）</span>
+          <button type="button">上传封面图</button>
+        </div>
+        <label>
+          <input type="checkbox" name="featured" defaultChecked={Boolean(post?.featured)} />
+          <span>设为首页推荐</span>
+          <small>勾选后文章可用于首页右侧窗口</small>
+        </label>
+      </div>
+
       <label className="admin-field admin-field-wide" style={fieldStyle}>
         <span style={labelTextStyle}>正文</span>
         <textarea name="body" rows={14} defaultValue={post?.bodyText || ''} style={textareaStyle} />
       </label>
-
-      <div className="admin-form-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '6px' }}>
-        <button
-          type="submit"
-          disabled={!canSave || isPending}
-          style={{
-            minHeight: '38px',
-            padding: '0 16px',
-            border: 0,
-            borderRadius: '5px',
-            background: 'rgba(8, 13, 19, .94)',
-            color: 'rgba(255, 255, 255, .92)',
-            opacity: canSave && !isPending ? 1 : .45
-          }}
-        >
-          {isPending ? '正在保存...' : mode === 'create' ? '发布文章' : '保存修改'}
-        </button>
-        <a href="/admin" style={{ color: 'rgba(77, 88, 92, .72)', fontSize: '13px' }}>取消</a>
-      </div>
     </form>
   )
 }
