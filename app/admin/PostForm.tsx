@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import type { AdminActionState } from '../../lib/adminPosts'
 
 type AdminEditablePost = {
@@ -92,6 +92,7 @@ const noticeStyle = {
 
 export default function PostForm({ action, post, mode, canSave }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(action, { status: 'idle' } as AdminActionState)
+  const [bodyValue, setBodyValue] = useState(post?.bodyText || '')
   const bodyRef = useRef<HTMLTextAreaElement>(null)
 
   function insertBodyText(before: string, after = '', placeholder = '文字') {
@@ -100,13 +101,16 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
 
     const start = textarea.selectionStart
     const end = textarea.selectionEnd
-    const current = textarea.value
+    const current = bodyValue
     const selected = current.slice(start, end) || placeholder
     const insertion = `${before}${selected}${after}`
+    const nextValue = `${current.slice(0, start)}${insertion}${current.slice(end)}`
 
-    textarea.value = `${current.slice(0, start)}${insertion}${current.slice(end)}`
-    textarea.focus()
-    textarea.setSelectionRange(start + before.length, start + before.length + selected.length)
+    setBodyValue(nextValue)
+    requestAnimationFrame(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + before.length, start + before.length + selected.length)
+    })
   }
 
   function insertBlock(text: string) {
@@ -114,13 +118,28 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
     if (!textarea) return
 
     const start = textarea.selectionStart
-    const current = textarea.value
+    const current = bodyValue
     const prefix = start > 0 && current[start - 1] !== '\n' ? '\n\n' : ''
     const insertion = `${prefix}${text}\n\n`
+    const nextValue = `${current.slice(0, start)}${insertion}${current.slice(start)}`
 
-    textarea.value = `${current.slice(0, start)}${insertion}${current.slice(start)}`
-    textarea.focus()
-    textarea.setSelectionRange(start + insertion.length, start + insertion.length)
+    setBodyValue(nextValue)
+    requestAnimationFrame(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + insertion.length, start + insertion.length)
+    })
+  }
+
+  function insertImageLink() {
+    const url = window.prompt('粘贴图片链接')
+    if (!url) return
+    insertBlock(`![图片描述](${url})`)
+  }
+
+  function insertVideoLink() {
+    const url = window.prompt('粘贴视频链接')
+    if (!url) return
+    insertBlock(`[视频链接](${url})`)
   }
 
   return (
@@ -142,9 +161,9 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         <button type="button" onClick={() => insertBlock('### 小标题')}>H3</button>
         <button type="button" onClick={() => insertBlock('> 引用内容')}>引用</button>
         <button type="button" onClick={() => insertBlock('---')}>分割线</button>
-        <button type="button" onClick={() => insertBlock('![图片描述](https://example.com/image.jpg)')}>图片链接</button>
-        <button type="button" onClick={() => insertBlock('![图片描述](上传图片后把链接放这里)')}>上传图片</button>
-        <button type="button" onClick={() => insertBlock('[视频链接](上传视频后把链接放这里)')}>上传视频</button>
+        <button type="button" onClick={insertImageLink}>图片链接</button>
+        <button type="button" onClick={insertImageLink}>上传图片</button>
+        <button type="button" onClick={insertVideoLink}>上传视频</button>
       </div>
 
       {!canSave && (
@@ -235,7 +254,14 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
 
       <label className="admin-field admin-field-wide" style={fieldStyle}>
         <span style={labelTextStyle}>正文</span>
-        <textarea ref={bodyRef} name="body" rows={14} defaultValue={post?.bodyText || ''} style={textareaStyle} />
+        <textarea
+          ref={bodyRef}
+          name="body"
+          rows={14}
+          value={bodyValue}
+          onChange={event => setBodyValue(event.target.value)}
+          style={textareaStyle}
+        />
       </label>
     </form>
   )
