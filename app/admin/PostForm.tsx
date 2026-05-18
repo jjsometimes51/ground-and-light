@@ -13,6 +13,7 @@ type AdminEditablePost = {
   category?: string
   excerpt?: string
   visibility?: string
+  postPassword?: string
   featured?: boolean
   coverImage?: {
     asset?: {
@@ -99,6 +100,7 @@ const noticeStyle = {
 export default function PostForm({ action, post, mode, canSave }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(action, { status: 'idle' } as AdminActionState)
   const [bodyValue, setBodyValue] = useState(post?.bodyText || '')
+  const [visibilityValue, setVisibilityValue] = useState(post?.visibility || 'public')
   const [coverImageAssetId, setCoverImageAssetId] = useState(post?.coverImage?.asset?._ref || '')
   const [coverImageName, setCoverImageName] = useState(post?.coverImage?.asset?.url ? '已选择封面图' : '')
   const [uploadMessage, setUploadMessage] = useState('')
@@ -270,10 +272,16 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
 
         <label className="admin-field" style={fieldStyle}>
           <span style={labelTextStyle}>可见性</span>
-          <select name="visibility" defaultValue={post?.visibility || 'public'} required style={controlStyle}>
+          <select
+            name="visibility"
+            value={visibilityValue}
+            onChange={event => setVisibilityValue(event.target.value)}
+            required
+            style={controlStyle}
+          >
             <option value="public">公开</option>
-            <option value="unlisted">隐藏</option>
-            <option value="private">私密</option>
+            <option value="private">隐私</option>
+            <option value="password">密码</option>
           </select>
         </label>
 
@@ -290,6 +298,22 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
           </select>
         </label>
       </div>
+
+      {visibilityValue === 'password' && (
+        <label className="admin-field admin-field-wide" style={fieldStyle}>
+          <span style={labelTextStyle}>文章密码</span>
+          <input
+            name="postPassword"
+            defaultValue={post?.postPassword || ''}
+            placeholder="给这篇文章设置一个单独密码"
+            required
+            style={controlStyle}
+          />
+          <small style={{ color: 'rgba(77, 88, 92, .58)', fontSize: '12px', lineHeight: 1.45 }}>
+            只有选择“密码”时需要填写。每篇文章可以使用不同密码。
+          </small>
+        </label>
+      )}
 
       <label className="admin-field admin-field-wide" style={fieldStyle}>
         <span style={labelTextStyle}>Slug 基础文字</span>

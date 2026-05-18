@@ -298,6 +298,47 @@ img, video { max-width: 100%; display: block; }
   color: rgba(20, 20, 20, .78);
   border-bottom: 1px solid rgba(20, 20, 20, .18);
 }
+.password-gate {
+  min-height: 46vh;
+  display: grid;
+  align-items: center;
+}
+.password-card {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 14px;
+  padding: 30px;
+  border: 1px solid rgba(55, 83, 94, .16);
+  background: rgba(255, 255, 255, .22);
+}
+.password-card p {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-size: 24px;
+  color: rgba(20, 20, 20, .78);
+}
+.password-card input {
+  min-height: 46px;
+  border: 1px solid rgba(55, 83, 94, .18);
+  background: rgba(255, 255, 255, .55);
+  color: rgba(20, 20, 20, .86);
+  font: inherit;
+  padding: 0 14px;
+}
+.password-card span {
+  color: rgba(132, 44, 61, .86);
+  font-size: 13px;
+}
+.password-card button {
+  width: fit-content;
+  min-height: 42px;
+  border: 1px solid rgba(20, 20, 20, .72);
+  background: rgba(10, 13, 15, .92);
+  color: rgba(255, 255, 255, .94);
+  font: inherit;
+  padding: 0 18px;
+  cursor: pointer;
+}
 .admin-shell {
   min-height: 100svh;
   display: grid;
@@ -554,6 +595,10 @@ img, video { max-width: 100%; display: block; }
 .visibility-private {
   background: rgba(219, 211, 235, .78);
   color: rgba(72, 55, 117, .92);
+}
+.visibility-password {
+  background: rgba(238, 220, 162, .82);
+  color: rgba(117, 83, 18, .92);
 }
 .category-pill {
   background: rgba(230, 221, 203, .8);

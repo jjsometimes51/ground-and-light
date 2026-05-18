@@ -6,7 +6,7 @@ export type AdminPost = {
   title?: string
   excerpt?: string
   category?: string
-  visibility?: 'public' | 'unlisted' | 'private'
+  visibility?: 'public' | 'private' | 'password'
   featured?: boolean
   publishedAt?: string
   _createdAt?: string
@@ -15,8 +15,8 @@ export type AdminPost = {
 
 const visibilityLabels: Record<string, string> = {
   public: '公开',
-  unlisted: '隐藏',
-  private: '私密'
+  private: '隐私',
+  password: '密码'
 }
 
 const categoryLabels: Record<string, string> = {

@@ -26,6 +26,7 @@ type EditablePost = {
   category?: string
   excerpt?: string
   visibility?: string
+  postPassword?: string
   featured?: boolean
   coverImage?: {
     asset?: {
@@ -81,6 +82,7 @@ export default async function EditPostPage({ searchParams }: { searchParams: Pro
       category,
       excerpt,
       visibility,
+      postPassword,
       featured,
       coverImage{
         asset->{_id, url}

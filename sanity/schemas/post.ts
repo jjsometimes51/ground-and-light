@@ -87,17 +87,24 @@ export default defineType({
       name: 'visibility',
       title: 'Visibility',
       type: 'string',
-      description: 'Public appears in section listings. Unlisted is hidden from listings but available by direct URL. Private is hidden from the frontend for now.',
+      description: 'Public appears in section listings. Private is hidden from the frontend. Password posts are available by direct URL after entering the post password.',
       initialValue: 'public',
       options: {
         list: [
           { title: 'Public', value: 'public' },
-          { title: 'Unlisted', value: 'unlisted' },
-          { title: 'Private', value: 'private' }
+          { title: 'Private', value: 'private' },
+          { title: 'Password protected', value: 'password' }
         ],
         layout: 'radio'
       },
       validation: Rule => Rule.required()
+    }),
+    defineField({
+      name: 'postPassword',
+      title: 'Post password',
+      type: 'string',
+      description: 'Only used when Visibility is Password protected. Each post can have its own password.',
+      hidden: ({ parent }) => parent?.visibility !== 'password'
     }),
     defineField({
       name: 'publishedAt',

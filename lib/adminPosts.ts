@@ -178,6 +178,10 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
     slug = slugifyWithDate(slugText)
     category = requiredString(formData, 'category')
     const visibility = requiredString(formData, 'visibility')
+    const postPassword = optionalString(formData, 'postPassword')
+    if (visibility === 'password' && !postPassword) {
+      throw new Error('选择“密码”可见性时，需要填写文章密码。')
+    }
     const language = requiredString(formData, 'language')
     const publishedAt = optionalString(formData, 'publishedAt')
     const bodyText = String(formData.get('body') || '')
@@ -194,6 +198,7 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
           language,
           category,
           visibility,
+          postPassword: visibility === 'password' ? postPassword : undefined,
           featured: formData.get('featured') === 'on',
           ...(coverImageAssetId ? {
             coverImage: {
@@ -229,6 +234,10 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
     const title = requiredString(formData, 'title')
     category = requiredString(formData, 'category')
     const visibility = requiredString(formData, 'visibility')
+    const postPassword = optionalString(formData, 'postPassword')
+    if (visibility === 'password' && !postPassword) {
+      throw new Error('选择“密码”可见性时，需要填写文章密码。')
+    }
     const language = requiredString(formData, 'language')
     const publishedAt = optionalString(formData, 'publishedAt')
     const currentSlug = optionalString(formData, 'currentSlug')
@@ -247,6 +256,7 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
             language,
             category,
             visibility,
+            postPassword: visibility === 'password' ? postPassword : undefined,
             featured: formData.get('featured') === 'on',
             ...(coverImageAssetId ? {
               coverImage: {
@@ -265,7 +275,10 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
               slug: { _type: 'slug', current: nextSlug }
             } : {})
           },
-          unset: publishedAt ? [] : ['publishedAt']
+          unset: [
+            ...(publishedAt ? [] : ['publishedAt']),
+            ...(visibility === 'password' && postPassword ? [] : ['postPassword'])
+          ]
         },
       }
     ])
