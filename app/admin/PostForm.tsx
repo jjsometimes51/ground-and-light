@@ -149,7 +149,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await fetch('/api/admin/upload', {
+    const response = await fetch('/admin/api/upload', {
       method: 'POST',
       credentials: 'same-origin',
       body: formData
@@ -329,7 +329,12 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
 
       <label className="admin-field admin-field-wide" style={fieldStyle}>
         <span style={labelTextStyle}>摘要</span>
-        <textarea name="excerpt" rows={3} defaultValue={post?.excerpt || ''} style={textareaStyle} />
+        <textarea
+          name="excerpt"
+          rows={2}
+          defaultValue={post?.excerpt || ''}
+          style={{ ...textareaStyle, minHeight: '78px' }}
+        />
       </label>
 
       <div className="admin-editor-media">
