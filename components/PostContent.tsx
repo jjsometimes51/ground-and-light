@@ -12,6 +12,7 @@ type MediaFile = {
 type Post = {
   title: string
   category: string
+  publishedAt?: string
   excerpt?: string
   coverImage?: any
   body?: any[]
@@ -66,10 +67,35 @@ const portableComponents = {
   }
 }
 
+function formatDate(value?: string) {
+  if (!value) return ''
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(new Date(value))
+}
+
+const categoryLabels: Record<string, string> = {
+  Travel: '旅行笔记',
+  Notes: '文章',
+  Work: '工作记录',
+  Musings: '随笔'
+}
+
 export default function PostContent({ post }: { post: Post }) {
+  const dateLabel = formatDate(post.publishedAt)
+  const categoryHref = `/${post.category.toLowerCase()}`
+  const categoryLabel = categoryLabels[post.category] || post.category
+
   return (
     <article className="article-inner">
-      <div className="card-meta">{post.category}</div>
+      <a className="article-back" href={categoryHref}>← Back</a>
+      <div className="article-meta">
+        <span>{post.category} · {categoryLabel}</span>
+        {dateLabel && <time dateTime={post.publishedAt}>{dateLabel}</time>}
+      </div>
       <h1>{post.title}</h1>
       {post.excerpt && <p className="article-excerpt">{post.excerpt}</p>}
       {post.coverImage && (
