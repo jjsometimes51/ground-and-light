@@ -63,8 +63,8 @@ export async function loginToAdmin(_prevState: AdminLoginState, formData: FormDa
   cookieStore.set(cookieName, sessionValue(), {
     httpOnly: true,
     sameSite: 'lax',
-    secure: true,
-    path: '/admin',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
     maxAge: 60 * 60 * 24 * 7
   })
 

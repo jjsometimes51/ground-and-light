@@ -151,6 +151,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
 
     const response = await fetch('/api/admin/upload', {
       method: 'POST',
+      credentials: 'same-origin',
       body: formData
     })
     const payload = await response.json()
