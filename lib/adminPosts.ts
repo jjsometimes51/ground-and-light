@@ -151,6 +151,7 @@ function actionError(error: unknown): AdminActionState {
 }
 
 function revalidateAdminAndSite(category?: string, slug?: string) {
+  revalidatePath('/')
   revalidatePath('/admin')
   revalidatePath('/travel')
   revalidatePath('/notes')

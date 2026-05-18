@@ -9,13 +9,25 @@ type FeaturedPost = {
 
 async function getFeaturedPost(): Promise<FeaturedPost | null> {
   const featuredPost = sanityFetch<FeaturedPost | null>(
-    `*[_type == "siteSettings"][0]{
-      featuredPost->{
+    `coalesce(
+      *[
+        _type == "post" &&
+        featured == true &&
+        coalesce(visibility, "public") == "public" &&
+        (!defined(publishedAt) || publishedAt <= now())
+      ] | order(coalesce(publishedAt, _createdAt) desc)[0]{
         title,
         slug,
         coverImage
-      }
-    }.featuredPost`
+      },
+      *[_type == "siteSettings"][0]{
+        featuredPost->{
+          title,
+          slug,
+          coverImage
+        }
+      }.featuredPost
+    )`
   ).catch(() => null)
 
   return withTimeout(featuredPost, null, 2500)
