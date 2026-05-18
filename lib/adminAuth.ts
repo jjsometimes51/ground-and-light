@@ -4,7 +4,7 @@ import { createHash } from 'crypto'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-const cookieName = 'ground_light_admin'
+const cookieName = 'ground_light_admin_v2'
 
 export type AdminLoginState = {
   status: 'idle' | 'error'
