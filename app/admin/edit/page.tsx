@@ -27,15 +27,41 @@ type EditablePost = {
   excerpt?: string
   visibility?: string
   featured?: boolean
+  coverImage?: {
+    asset?: {
+      _id?: string
+      _ref?: string
+      url?: string
+    }
+  }
   publishedAt?: string
   body?: Array<{
+    _type?: string
+    asset?: {
+      _id?: string
+      _ref?: string
+      url?: string
+      mimeType?: string
+      originalFilename?: string
+    }
     children?: Array<{ text?: string }>
   }>
 }
 
 function bodyToText(body?: EditablePost['body']) {
   return (body || [])
-    .map(block => (block.children || []).map(child => child.text || '').join(''))
+    .map(block => {
+      if (block._type === 'image' && block.asset?._ref) {
+        return `![图片](sanity:${block.asset._ref})`
+      }
+
+      if (block._type === 'file' && block.asset?._ref) {
+        const label = block.asset.mimeType?.startsWith('video/') ? '视频' : block.asset.mimeType?.startsWith('audio/') ? '音频' : '文件'
+        return `[${label}: ${block.asset.originalFilename || 'media'}](sanity:${block.asset._ref})`
+      }
+
+      return (block.children || []).map(child => child.text || '').join('')
+    })
     .filter(Boolean)
     .join('\n\n')
 }
@@ -56,8 +82,13 @@ export default async function EditPostPage({ searchParams }: { searchParams: Pro
       excerpt,
       visibility,
       featured,
+      coverImage{
+        asset->{_id, url}
+      },
       publishedAt,
-      body[_type == "block"]{
+      body[]{
+        _type,
+        asset->{_id, url, mimeType, originalFilename},
         children[]{text}
       }
     }`,
@@ -73,7 +104,24 @@ export default async function EditPostPage({ searchParams }: { searchParams: Pro
       {post ? (
         <PostForm
           action={updatePost}
-          post={{ ...post, bodyText: bodyToText(post.body) }}
+          post={{
+            ...post,
+            coverImage: post.coverImage?.asset?._id ? {
+              asset: {
+                _ref: post.coverImage.asset._id,
+                url: post.coverImage.asset.url
+              }
+            } : undefined,
+            bodyText: bodyToText(post.body?.map(block => ({
+              ...block,
+              asset: block.asset?._id ? {
+                _ref: block.asset._id,
+                url: block.asset.url,
+                mimeType: block.asset.mimeType,
+                originalFilename: block.asset.originalFilename
+              } : undefined
+            }))) 
+          }}
           mode="edit"
           canSave={Boolean(process.env.SANITY_API_TOKEN)}
         />

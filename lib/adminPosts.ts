@@ -23,6 +23,15 @@ type PortableTextBlock = {
   }>
 }
 
+type PortableMediaBlock = {
+  _type: 'image' | 'file'
+  _key: string
+  asset: {
+    _type: 'reference'
+    _ref: string
+  }
+}
+
 function requireToken() {
   const token = process.env.SANITY_API_TOKEN
 
@@ -51,25 +60,51 @@ function slugifyWithDate(input: string) {
   return `${base}-${date}`
 }
 
-function bodyToBlocks(value: string): PortableTextBlock[] {
+function bodyToBlocks(value: string): Array<PortableTextBlock | PortableMediaBlock> {
   return value
     .split(/\n{2,}/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean)
-    .map(paragraph => ({
-      _type: 'block',
-      _key: key('b'),
-      style: 'normal',
-      markDefs: [],
-      children: [
-        {
-          _type: 'span',
-          _key: key('s'),
-          text: paragraph,
-          marks: []
+    .map(paragraph => {
+      const imageMatch = paragraph.match(/^!\[([^\]]*)\]\(sanity:(image-[^)]+)\)$/)
+      if (imageMatch) {
+        return {
+          _type: 'image',
+          _key: key('i'),
+          asset: {
+            _type: 'reference',
+            _ref: imageMatch[2]
+          }
         }
-      ]
-    }))
+      }
+
+      const fileMatch = paragraph.match(/^\[([^\]]+)\]\(sanity:(file-[^)]+)\)$/)
+      if (fileMatch) {
+        return {
+          _type: 'file',
+          _key: key('f'),
+          asset: {
+            _type: 'reference',
+            _ref: fileMatch[2]
+          }
+        }
+      }
+
+      return {
+        _type: 'block',
+        _key: key('b'),
+        style: 'normal',
+        markDefs: [],
+        children: [
+          {
+            _type: 'span',
+            _key: key('s'),
+            text: paragraph,
+            marks: []
+          }
+        ]
+      }
+    })
 }
 
 function optionalString(formData: FormData, name: string) {
@@ -146,6 +181,7 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
     const language = requiredString(formData, 'language')
     const publishedAt = optionalString(formData, 'publishedAt')
     const bodyText = String(formData.get('body') || '')
+    const coverImageAssetId = optionalString(formData, 'coverImageAssetId')
 
     await sanityMutate([
       {
@@ -159,6 +195,15 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
           category,
           visibility,
           featured: formData.get('featured') === 'on',
+          ...(coverImageAssetId ? {
+            coverImage: {
+              _type: 'image',
+              asset: {
+                _type: 'reference',
+                _ref: coverImageAssetId
+              }
+            }
+          } : {}),
           excerpt: optionalString(formData, 'excerpt'),
           publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
           body: bodyToBlocks(bodyText)
@@ -189,6 +234,7 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
     const currentSlug = optionalString(formData, 'currentSlug')
     const slugText = optionalString(formData, 'slugText')
     const bodyText = String(formData.get('body') || '')
+    const coverImageAssetId = optionalString(formData, 'coverImageAssetId')
     nextSlug = slugText ? slugifyWithDate(slugText) : currentSlug
 
     await sanityMutate([
@@ -202,6 +248,15 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
             category,
             visibility,
             featured: formData.get('featured') === 'on',
+            ...(coverImageAssetId ? {
+              coverImage: {
+                _type: 'image',
+                asset: {
+                  _type: 'reference',
+                  _ref: coverImageAssetId
+                }
+              }
+            } : {}),
             excerpt: optionalString(formData, 'excerpt'),
             publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
             body: bodyToBlocks(bodyText),

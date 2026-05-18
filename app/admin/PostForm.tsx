@@ -14,6 +14,12 @@ type AdminEditablePost = {
   excerpt?: string
   visibility?: string
   featured?: boolean
+  coverImage?: {
+    asset?: {
+      _ref?: string
+      url?: string
+    }
+  }
   publishedAt?: string
   bodyText?: string
 }
@@ -93,7 +99,13 @@ const noticeStyle = {
 export default function PostForm({ action, post, mode, canSave }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(action, { status: 'idle' } as AdminActionState)
   const [bodyValue, setBodyValue] = useState(post?.bodyText || '')
+  const [coverImageAssetId, setCoverImageAssetId] = useState(post?.coverImage?.asset?._ref || '')
+  const [coverImageName, setCoverImageName] = useState(post?.coverImage?.asset?.url ? '已选择封面图' : '')
+  const [uploadMessage, setUploadMessage] = useState('')
   const bodyRef = useRef<HTMLTextAreaElement>(null)
+  const coverInputRef = useRef<HTMLInputElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
 
   function insertBodyText(before: string, after = '', placeholder = '文字') {
     const textarea = bodyRef.current
@@ -130,22 +142,74 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
     })
   }
 
-  function insertImageLink() {
-    const url = window.prompt('粘贴图片链接')
-    if (!url) return
-    insertBlock(`![图片描述](${url})`)
+  async function uploadFile(file: File) {
+    setUploadMessage('正在上传...')
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch('/api/admin/upload', {
+      method: 'POST',
+      body: formData
+    })
+    const payload = await response.json()
+
+    if (!response.ok) {
+      throw new Error(payload?.error || '上传失败')
+    }
+
+    setUploadMessage('上传完成')
+    return payload as {
+      id: string
+      url: string
+      mimeType: string
+      filename: string
+      kind: 'image' | 'file'
+    }
   }
 
-  function insertVideoLink() {
-    const url = window.prompt('粘贴视频链接')
-    if (!url) return
-    insertBlock(`[视频链接](${url})`)
+  async function handleCoverUpload(file?: File) {
+    if (!file) return
+
+    try {
+      const asset = await uploadFile(file)
+      if (asset.kind !== 'image') {
+        setUploadMessage('封面图只能上传图片文件。')
+        return
+      }
+
+      setCoverImageAssetId(asset.id)
+      setCoverImageName(asset.filename || '已选择封面图')
+    } catch (error) {
+      setUploadMessage(error instanceof Error ? error.message : '上传失败')
+    }
+  }
+
+  async function handleBodyUpload(file?: File) {
+    if (!file) return
+
+    try {
+      const asset = await uploadFile(file)
+
+      if (asset.kind === 'image') {
+        insertBlock(`![${asset.filename || '图片'}](sanity:${asset.id})`)
+        return
+      }
+
+      const label = asset.mimeType?.startsWith('video/') ? '视频' : asset.mimeType?.startsWith('audio/') ? '音频' : '文件'
+      insertBlock(`[${label}: ${asset.filename || 'media'}](sanity:${asset.id})`)
+    } catch (error) {
+      setUploadMessage(error instanceof Error ? error.message : '上传失败')
+    }
   }
 
   return (
     <form action={formAction} className="admin-form admin-editor-form" style={formStyle}>
       {post?._id && <input type="hidden" name="_id" value={post._id} />}
       {post?.slug?.current && <input type="hidden" name="currentSlug" value={post.slug.current} />}
+      <input type="hidden" name="coverImageAssetId" value={coverImageAssetId} />
+      <input ref={coverInputRef} type="file" accept="image/*" hidden onChange={event => handleCoverUpload(event.target.files?.[0])} />
+      <input ref={imageInputRef} type="file" accept="image/*" hidden onChange={event => handleBodyUpload(event.target.files?.[0])} />
+      <input ref={videoInputRef} type="file" accept="video/*,audio/*" hidden onChange={event => handleBodyUpload(event.target.files?.[0])} />
 
       <div className="admin-editor-actions">
         <a href="/admin/posts">取消</a>
@@ -161,10 +225,13 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         <button type="button" onClick={() => insertBlock('### 小标题')}>H3</button>
         <button type="button" onClick={() => insertBlock('> 引用内容')}>引用</button>
         <button type="button" onClick={() => insertBlock('---')}>分割线</button>
-        <button type="button" onClick={insertImageLink}>图片链接</button>
-        <button type="button" onClick={insertImageLink}>上传图片</button>
-        <button type="button" onClick={insertVideoLink}>上传视频</button>
+        <button type="button" onClick={() => imageInputRef.current?.click()}>上传图片</button>
+        <button type="button" onClick={() => videoInputRef.current?.click()}>上传视频/音频</button>
       </div>
+
+      {uploadMessage && (
+        <div className="admin-upload-status">{uploadMessage}</div>
+      )}
 
       {!canSave && (
         <div className="admin-notice" style={noticeStyle}>
@@ -243,7 +310,8 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
       <div className="admin-editor-media">
         <div>
           <span>封面图（首页推荐卡片显示）</span>
-          <button type="button">上传封面图</button>
+          <button type="button" onClick={() => coverInputRef.current?.click()}>上传封面图</button>
+          {coverImageName && <small>{coverImageName}</small>}
         </div>
         <label>
           <input type="checkbox" name="featured" defaultChecked={Boolean(post?.featured)} />
