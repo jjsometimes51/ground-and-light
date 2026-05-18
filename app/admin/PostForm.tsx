@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useRef } from 'react'
 import type { AdminActionState } from '../../lib/adminPosts'
 
 type AdminEditablePost = {
@@ -92,6 +92,36 @@ const noticeStyle = {
 
 export default function PostForm({ action, post, mode, canSave }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(action, { status: 'idle' } as AdminActionState)
+  const bodyRef = useRef<HTMLTextAreaElement>(null)
+
+  function insertBodyText(before: string, after = '', placeholder = '文字') {
+    const textarea = bodyRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const current = textarea.value
+    const selected = current.slice(start, end) || placeholder
+    const insertion = `${before}${selected}${after}`
+
+    textarea.value = `${current.slice(0, start)}${insertion}${current.slice(end)}`
+    textarea.focus()
+    textarea.setSelectionRange(start + before.length, start + before.length + selected.length)
+  }
+
+  function insertBlock(text: string) {
+    const textarea = bodyRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const current = textarea.value
+    const prefix = start > 0 && current[start - 1] !== '\n' ? '\n\n' : ''
+    const insertion = `${prefix}${text}\n\n`
+
+    textarea.value = `${current.slice(0, start)}${insertion}${current.slice(start)}`
+    textarea.focus()
+    textarea.setSelectionRange(start + insertion.length, start + insertion.length)
+  }
 
   return (
     <form action={formAction} className="admin-form admin-editor-form" style={formStyle}>
@@ -106,15 +136,15 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
       </div>
 
       <div className="admin-editor-toolbar" aria-label="Editor tools">
-        <button type="button">B</button>
-        <button type="button">/</button>
-        <button type="button">H2</button>
-        <button type="button">H3</button>
-        <button type="button">引用</button>
-        <button type="button">分割线</button>
-        <button type="button">图片链接</button>
-        <button type="button">上传图片</button>
-        <button type="button">上传视频</button>
+        <button type="button" onClick={() => insertBodyText('**', '**')}>B</button>
+        <button type="button" onClick={() => insertBodyText('*', '*')}>/</button>
+        <button type="button" onClick={() => insertBlock('## 小标题')}>H2</button>
+        <button type="button" onClick={() => insertBlock('### 小标题')}>H3</button>
+        <button type="button" onClick={() => insertBlock('> 引用内容')}>引用</button>
+        <button type="button" onClick={() => insertBlock('---')}>分割线</button>
+        <button type="button" onClick={() => insertBlock('![图片描述](https://example.com/image.jpg)')}>图片链接</button>
+        <button type="button" onClick={() => insertBlock('![图片描述](上传图片后把链接放这里)')}>上传图片</button>
+        <button type="button" onClick={() => insertBlock('[视频链接](上传视频后把链接放这里)')}>上传视频</button>
       </div>
 
       {!canSave && (
@@ -205,7 +235,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
 
       <label className="admin-field admin-field-wide" style={fieldStyle}>
         <span style={labelTextStyle}>正文</span>
-        <textarea name="body" rows={14} defaultValue={post?.bodyText || ''} style={textareaStyle} />
+        <textarea ref={bodyRef} name="body" rows={14} defaultValue={post?.bodyText || ''} style={textareaStyle} />
       </label>
     </form>
   )
