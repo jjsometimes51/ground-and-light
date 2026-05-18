@@ -15,6 +15,8 @@ export default async function CategoryPage({ category }: { category: string }) {
       slug,
       category,
       excerpt,
+      publishedAt,
+      _createdAt,
       coverImage,
       audio{asset->{url, mimeType, originalFilename}},
       video{asset->{url, mimeType, originalFilename}}
