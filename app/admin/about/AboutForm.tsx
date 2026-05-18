@@ -23,7 +23,7 @@ export default function AboutForm({ settingsId, initialText, canSave }: { settin
       )}
 
       <label className="admin-field">
-        <span>ABOUT 页面内容</span>
+        <span>正文内容</span>
         <textarea name="about" rows={22} defaultValue={initialText} />
       </label>
 

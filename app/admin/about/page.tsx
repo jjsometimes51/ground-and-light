@@ -44,7 +44,10 @@ export default async function AdminAboutPage({ searchParams }: { searchParams: P
   return (
     <AdminShell active="About">
       <header className="admin-topbar admin-topbar-narrow">
-        <h1>About</h1>
+        <div>
+          <p className="admin-kicker">页面设置</p>
+          <h1>内容编辑</h1>
+        </div>
       </header>
 
       {saved && <div className="admin-notice admin-notice-success">已保存 About 页面。</div>}
