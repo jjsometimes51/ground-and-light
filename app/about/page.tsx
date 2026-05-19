@@ -1,18 +1,21 @@
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-import { client } from '../../lib/sanity'
+import type { Metadata } from 'next'
 
-export default async function AboutPage() {
-  const settings = await client.fetch(`*[_type == "siteSettings"][0]{about}`).catch(() => null)
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'About Ground & Light.',
+  alternates: { canonical: '/about' }
+}
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export default function AboutPage() {
   return (
     <>
       <Header />
-      <main className="container article">
-        <h1>About</h1>
-        <p>Builder. Observer.</p>
-        <p>Interested in technology, people, and the structures that shape our lives.</p>
-        {!settings?.about && <p>This page can be edited from /admin in Site Settings.</p>}
-      </main>
+      <main className="container article" />
       <Footer />
     </>
   )
