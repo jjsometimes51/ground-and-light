@@ -187,8 +187,15 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
     const publishedAt = optionalString(formData, 'publishedAt')
     const bodyText = String(formData.get('body') || '')
     const coverImageAssetId = optionalString(formData, 'coverImageAssetId')
+    const featured = formData.get('featured') === 'on'
 
     await sanityMutate([
+      ...(featured ? [{
+        patch: {
+          query: '*[_type == "post" && featured == true]',
+          unset: ['featured']
+        }
+      }] : []),
       {
         create: {
           _type: 'post',
@@ -200,7 +207,7 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
           category,
           visibility,
           postPassword: visibility === 'password' ? postPassword : undefined,
-          featured: formData.get('featured') === 'on',
+          featured,
           ...(coverImageAssetId ? {
             coverImage: {
               _type: 'image',
@@ -245,9 +252,16 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
     const slugText = optionalString(formData, 'slugText')
     const bodyText = String(formData.get('body') || '')
     const coverImageAssetId = optionalString(formData, 'coverImageAssetId')
+    const featured = formData.get('featured') === 'on'
     nextSlug = slugText ? slugifyWithDate(slugText) : currentSlug
 
     await sanityMutate([
+      ...(featured ? [{
+        patch: {
+          query: `*[_type == "post" && _id != "${id}" && featured == true]`,
+          unset: ['featured']
+        }
+      }] : []),
       {
         patch: {
           id,
@@ -258,7 +272,7 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
             category,
             visibility,
             postPassword: visibility === 'password' ? postPassword : undefined,
-            featured: formData.get('featured') === 'on',
+            featured,
             ...(coverImageAssetId ? {
               coverImage: {
                 _type: 'image',

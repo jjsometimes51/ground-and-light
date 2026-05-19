@@ -41,11 +41,13 @@ function adminEditUrl(id: string) {
 }
 
 export default function AdminPostTable({ posts, label = 'Posts' }: { posts: AdminPost[], label?: string }) {
+  const featuredPostId = posts.find(post => post.featured)?._id
+
   return (
     <div className="admin-table" role="table" aria-label={label}>
       <div className="admin-row admin-row-head" role="row">
         <span>标题</span>
-        <span>推荐</span>
+        <span>首页</span>
         <span>可见性</span>
         <span>分类</span>
         <span>日期</span>
@@ -58,7 +60,7 @@ export default function AdminPostTable({ posts, label = 'Posts' }: { posts: Admi
             <strong>{post.title || 'Untitled'}</strong>
             {post.excerpt && <p>{post.excerpt}</p>}
           </div>
-          <span className="admin-feature">{post.featured ? '★' : '☆'}</span>
+          <span className="admin-feature">{post._id === featuredPostId ? '★' : '☆'}</span>
           <span>
             <mark className={`admin-pill visibility-${post.visibility || 'public'}`}>
               {visibilityLabels[post.visibility || 'public']}

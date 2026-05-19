@@ -222,14 +222,20 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
       </div>
 
       <div className="admin-editor-toolbar" aria-label="Editor tools">
-        <button type="button" onClick={() => insertBodyText('**', '**')}>B</button>
-        <button type="button" onClick={() => insertBodyText('*', '*')}>/</button>
-        <button type="button" onClick={() => insertBlock('## 小标题')}>H2</button>
-        <button type="button" onClick={() => insertBlock('### 小标题')}>H3</button>
-        <button type="button" onClick={() => insertBlock('> 引用内容')}>引用</button>
-        <button type="button" onClick={() => insertBlock('---')}>分割线</button>
-        <button type="button" onClick={() => imageInputRef.current?.click()}>上传图片</button>
-        <button type="button" onClick={() => videoInputRef.current?.click()}>上传视频/音频</button>
+        <span className="admin-toolbar-group">
+          <button type="button" onClick={() => insertBodyText('**', '**')}>B</button>
+          <button type="button" onClick={() => insertBodyText('*', '*')}>/</button>
+          <button type="button" onClick={() => insertBlock('## 小标题')}>H2</button>
+          <button type="button" onClick={() => insertBlock('### 小标题')}>H3</button>
+        </span>
+        <span className="admin-toolbar-group">
+          <button type="button" onClick={() => insertBlock('> 引用内容')}>引用</button>
+          <button type="button" onClick={() => insertBlock('---')}>分割线</button>
+        </span>
+        <span className="admin-toolbar-group admin-toolbar-upload">
+          <button type="button" onClick={() => imageInputRef.current?.click()}>上传图片</button>
+          <button type="button" onClick={() => videoInputRef.current?.click()}>上传视频/音频</button>
+        </span>
       </div>
 
       {uploadMessage && (
@@ -337,7 +343,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         />
       </label>
 
-      <div className="admin-editor-media">
+      <div className="admin-editor-media admin-feature-panel">
         <div>
           <span>封面图（首页推荐卡片显示）</span>
           <button type="button" onClick={() => coverInputRef.current?.click()}>上传封面图</button>
@@ -345,8 +351,8 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         </div>
         <label>
           <input type="checkbox" name="featured" defaultChecked={Boolean(post?.featured)} />
-          <span>设为首页推荐</span>
-          <small>勾选后文章可用于首页右侧窗口</small>
+          <span>设为首页唯一推荐</span>
+          <small>首页窗户只显示一篇文章。保存后，其他文章会自动取消推荐。</small>
         </label>
       </div>
 

@@ -80,7 +80,13 @@ export default defineType({
     }),
     defineField({ name: 'excerpt', title: 'Excerpt', type: 'text', rows: 3 }),
     defineField({ name: 'coverImage', title: 'Cover image', type: 'image', options: { hotspot: true } }),
-    defineField({ name: 'featured', title: 'Featured on homepage', type: 'boolean', initialValue: false }),
+    defineField({
+      name: 'featured',
+      title: 'Homepage featured window',
+      type: 'boolean',
+      description: 'Use the custom /admin editor for this. The homepage is designed for one featured post only.',
+      initialValue: false
+    }),
     defineField({ name: 'audio', title: 'Audio file', type: 'file', options: { accept: 'audio/*' } }),
     defineField({ name: 'video', title: 'Video file', type: 'file', options: { accept: 'video/*' } }),
     defineField({
