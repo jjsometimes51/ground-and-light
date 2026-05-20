@@ -15,6 +15,9 @@ export const revalidate = 0
 
 type AboutBlock = {
   _type: 'block'
+  _key?: string
+  style?: string
+  markDefs?: any[]
   children?: Array<{ text?: string }>
 }
 
@@ -58,7 +61,16 @@ export default async function AboutPage() {
     sanityFetch<AboutSettings[]>(`*[_type == "siteSettings"] | order(_updatedAt desc){
       _id,
       about[_type == "block"]{
-        children[]{text}
+        _type,
+        _key,
+        style,
+        markDefs,
+        children[]{
+          _type,
+          _key,
+          text,
+          marks
+        }
       }
     }`).catch(() => null),
     null,
