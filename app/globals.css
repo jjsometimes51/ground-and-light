@@ -68,7 +68,7 @@ img, video { max-width: 100%; display: block; }
   max-width: none;
   object-fit: contain;
   opacity: .88;
-  transform: translate(-25.586%, -36.719%);
+  transform: translate(-25.586%, -39.2%);
 }
 .nav {
   display:flex;
