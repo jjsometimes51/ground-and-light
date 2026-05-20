@@ -62,7 +62,7 @@ const fieldStyle = {
 }
 
 const labelTextStyle = {
-  color: 'rgba(64, 78, 84, .72)',
+  color: 'rgba(27, 39, 43, .82)',
   fontSize: '12px',
   fontWeight: 650
 }
@@ -72,8 +72,8 @@ const controlStyle = {
   minHeight: '48px',
   border: '1px solid rgba(71, 94, 104, .18)',
   borderRadius: '6px',
-  background: 'rgba(255, 255, 255, .56)',
-  color: 'rgba(12, 16, 18, .88)',
+  background: 'rgba(255, 255, 255, .78)',
+  color: 'rgba(8, 13, 15, .94)',
   font: 'inherit',
   fontSize: '14px',
   padding: '0 14px'
@@ -322,26 +322,28 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         </label>
       )}
 
-      <label className="admin-field admin-field-wide" style={fieldStyle}>
-        <span style={labelTextStyle}>Slug 基础文字</span>
-        <input
-          name="slugText"
-          defaultValue={post?.slugText || ''}
-          placeholder={mode === 'create' ? 'ronda / sunset / alhambra' : '留空则不修改现有 slug'}
-          style={controlStyle}
-        />
-        <small style={{ color: 'rgba(77, 88, 92, .58)', fontSize: '12px', lineHeight: 1.45 }}>填写英文或拼音即可，系统会自动加当天日期，避免重复。</small>
-      </label>
+      <div className="admin-editor-compact-row">
+        <label className="admin-field" style={fieldStyle}>
+          <span style={labelTextStyle}>Slug 基础文字</span>
+          <input
+            name="slugText"
+            defaultValue={post?.slugText || ''}
+            placeholder={mode === 'create' ? 'ronda / sunset / alhambra' : '留空则不修改现有 slug'}
+            style={controlStyle}
+          />
+          <small style={{ color: 'rgba(45, 58, 62, .72)', fontSize: '12px', lineHeight: 1.45 }}>填写英文或拼音即可，系统会自动加当天日期。</small>
+        </label>
 
-      <label className="admin-field admin-field-wide" style={fieldStyle}>
-        <span style={labelTextStyle}>摘要</span>
-        <textarea
-          name="excerpt"
-          rows={2}
-          defaultValue={post?.excerpt || ''}
-          style={{ ...textareaStyle, minHeight: '78px' }}
-        />
-      </label>
+        <label className="admin-field" style={fieldStyle}>
+          <span style={labelTextStyle}>摘要</span>
+          <textarea
+            name="excerpt"
+            rows={1}
+            defaultValue={post?.excerpt || ''}
+            style={{ ...textareaStyle, minHeight: '48px', height: '48px', padding: '12px 14px' }}
+          />
+        </label>
+      </div>
 
       <div className="admin-editor-media admin-feature-panel">
         <div>

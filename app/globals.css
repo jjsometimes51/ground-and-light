@@ -2017,6 +2017,12 @@ img, video { max-width: 100%; display: block; }
   padding-bottom: 22px;
   border-bottom-color: rgba(52, 78, 88, .1);
 }
+.admin-editor-compact-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: 16px;
+  align-items: start;
+}
 .admin-toolbar-group {
   border-color: rgba(52, 78, 88, .12);
   background: rgba(255, 255, 255, .44);
@@ -2028,6 +2034,23 @@ img, video { max-width: 100%; display: block; }
   font-size: 17px;
   line-height: 1.95;
   color: #121819;
+}
+.admin-content,
+.admin-field span,
+.admin-field small,
+.admin-title-cell p,
+.admin-date,
+.admin-row-head {
+  color: rgba(16, 25, 28, .78);
+}
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  color: rgba(6, 10, 12, .96);
+}
+.admin-field input::placeholder,
+.admin-field textarea::placeholder {
+  color: rgba(52, 64, 68, .5);
 }
 .admin-notice,
 .admin-empty,
@@ -2092,6 +2115,9 @@ img, video { max-width: 100%; display: block; }
   }
   .admin-form-grid {
     grid-template-columns: 1fr 1fr;
+  }
+  .admin-editor-compact-row {
+    grid-template-columns: 1fr;
   }
   .home { width: 100%; min-height: 100svh; height: auto; padding: 0 26px 42px; overflow: visible; }
   .home-header {
@@ -2214,12 +2240,13 @@ img, video { max-width: 100%; display: block; }
     grid-column: 1;
     grid-row: 1;
     align-self: start;
-    max-width: 300px;
+    width: min(100%, 342px);
+    max-width: 342px;
     justify-self: center;
     transform: none;
   }
-  .hero-slogan { font-size: clamp(24px, 7.2vw, 31px); line-height: 1.5; }
-  .hero-note { max-width: 280px; margin-top: 28px; font-size: 15px; }
+  .hero-slogan { font-size: clamp(22px, 6.25vw, 26px); line-height: 1.46; }
+  .hero-note { max-width: 320px; margin-top: 24px; font-size: 15px; }
   .hero-window {
     grid-column: 1;
     grid-row: 2;
