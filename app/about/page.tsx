@@ -14,7 +14,13 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 type AboutBlock = {
+  _type: 'block'
   children?: Array<{ text?: string }>
+}
+
+type AboutSettings = {
+  _id?: string
+  about?: AboutBlock[]
 }
 
 function aboutText(blocks?: AboutBlock[]) {
@@ -39,13 +45,26 @@ function isOldDefaultAbout(blocks?: AboutBlock[]) {
   return text === oldDefault
 }
 
+function pickAbout(settings: AboutSettings[] | null) {
+  const candidates = settings || []
+  const preferred = candidates.find(item => item._id === 'siteSettings' && aboutText(item.about) && !isOldDefaultAbout(item.about))
+    || candidates.find(item => aboutText(item.about) && !isOldDefaultAbout(item.about))
+
+  return preferred?.about || []
+}
+
 export default async function AboutPage() {
   const settings = await withTimeout(
-    sanityFetch<{ about?: any[] }>(`*[_type == "siteSettings"][0]{about}`).catch(() => null),
+    sanityFetch<AboutSettings[]>(`*[_type == "siteSettings"] | order(_updatedAt desc){
+      _id,
+      about[_type == "block"]{
+        children[]{text}
+      }
+    }`).catch(() => null),
     null,
     3000
   )
-  const about = isOldDefaultAbout(settings?.about) ? [] : settings?.about
+  const about = pickAbout(settings)
 
   return (
     <>

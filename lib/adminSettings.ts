@@ -85,7 +85,7 @@ export async function updateAbout(_prevState: AdminActionState, formData: FormDa
   await requireAdminAuth()
 
   try {
-    const id = String(formData.get('_id') || '').trim() || 'siteSettings'
+    const id = 'siteSettings'
     const about = String(formData.get('about') || '')
 
     await sanityMutate([

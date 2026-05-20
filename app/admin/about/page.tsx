@@ -21,25 +21,47 @@ type AboutSettings = {
   }>
 }
 
-function blocksToText(blocks?: AboutSettings['about']) {
+function aboutText(blocks?: AboutSettings['about']) {
   return (blocks || [])
     .map(block => (block.children || []).map(child => child.text || '').join(''))
     .filter(Boolean)
     .join('\n\n')
 }
 
+function blocksToText(blocks?: AboutSettings['about']) {
+  const text = aboutText(blocks)
+
+  const isOldDefault = [
+    'Builder. Observer.',
+    'Interested in technology, people, and the structures that shape our lives.',
+    'This page can be edited from /admin in Site Settings.'
+  ].every(line => text.includes(line))
+
+  return isOldDefault ? '' : text
+}
+
+function pickSettings(settings?: AboutSettings[] | null) {
+  const candidates = settings || []
+  const preferred = candidates.find(item => item._id === 'siteSettings' && blocksToText(item.about).trim())
+    || candidates.find(item => blocksToText(item.about).trim())
+    || candidates.find(item => item._id === 'siteSettings')
+
+  return preferred || null
+}
+
 export default async function AdminAboutPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   await requireAdminAuth()
 
   const { saved } = await searchParams
-  const settings = await withTimeout(sanityFetch<AboutSettings | null>(
-    `*[_type == "siteSettings"][0]{
+  const settingsList = await withTimeout(sanityFetch<AboutSettings[]>(
+    `*[_type == "siteSettings"] | order(_updatedAt desc){
       _id,
       about[_type == "block"]{
         children[]{text}
       }
     }`
   ).catch(() => null), null, 5000)
+  const settings = pickSettings(settingsList)
 
   return (
     <AdminShell active="About">
@@ -52,7 +74,7 @@ export default async function AdminAboutPage({ searchParams }: { searchParams: P
 
       {saved && <div className="admin-notice admin-notice-success">已保存 About 页面。</div>}
 
-      <AboutForm settingsId={settings?._id} initialText={blocksToText(settings?.about)} canSave={Boolean(process.env.SANITY_API_TOKEN)} />
+      <AboutForm settingsId="siteSettings" initialText={blocksToText(settings?.about)} canSave={Boolean(process.env.SANITY_API_TOKEN)} />
     </AdminShell>
   )
 }
