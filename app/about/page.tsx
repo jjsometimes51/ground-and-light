@@ -51,7 +51,9 @@ export default async function AboutPage() {
     <>
       <Header />
       <main className="container article">
-        {about?.length ? <PortableText value={about} /> : null}
+        <article className="article-inner about-content">
+          {about?.length ? <PortableText value={about} /> : null}
+        </article>
       </main>
       <Footer />
     </>
