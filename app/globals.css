@@ -486,6 +486,7 @@ img, video { max-width: 100%; display: block; }
   margin: 0 auto;
 }
 .about-content {
+  width: min(100% - 64px, 760px);
   min-height: clamp(260px, 38vh, 440px);
 }
 .article-back {
@@ -1567,6 +1568,474 @@ img, video { max-width: 100%; display: block; }
   min-height: 520px;
   font-size: 17px;
   line-height: 1.95;
+}
+
+/* Admin typography and readability pass */
+.admin-shell {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(15, 22, 24, .9);
+}
+.admin-brand span {
+  font-family: "Times New Roman", SimSun, "Songti SC", serif;
+  font-size: 24px;
+  line-height: 1.05;
+}
+.admin-brand small {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .2em;
+}
+.admin-menu a,
+.admin-sidebar-footer a,
+.admin-sidebar-footer button {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: rgba(239, 244, 244, .74);
+}
+.admin-menu a span {
+  width: 30px;
+  font-family: "Times New Roman", serif;
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(239, 244, 244, .48);
+}
+.admin-sidebar-footer a,
+.admin-sidebar-footer button {
+  font-size: 14px;
+  color: rgba(239, 244, 244, .54);
+}
+.admin-topbar h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: clamp(27px, 2.2vw, 34px);
+  font-weight: 650;
+  line-height: 1.18;
+  color: rgba(12, 16, 18, .88);
+}
+.admin-topbar h1 span {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(77, 88, 92, .68);
+}
+.admin-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  color: rgba(77, 88, 92, .58);
+}
+.admin-section h2,
+.admin-placeholder-panel h2,
+.admin-comment-card h2 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.35;
+  color: rgba(12, 16, 18, .86);
+}
+.admin-stat-card strong {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: clamp(34px, 3vw, 44px);
+  font-weight: 620;
+}
+.admin-stat-card span {
+  font-size: 14px;
+  font-weight: 650;
+  color: rgba(48, 61, 65, .78);
+}
+.admin-stat-card small {
+  font-size: 13px;
+  color: rgba(77, 88, 92, .62);
+}
+.admin-row {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.admin-row-head {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .04em;
+  color: rgba(45, 58, 62, .66);
+}
+.admin-title-cell strong {
+  font-size: 15px;
+  font-weight: 660;
+  color: rgba(12, 16, 18, .92);
+}
+.admin-title-cell p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(77, 88, 92, .66);
+}
+.admin-date {
+  font-size: 13px;
+  color: rgba(58, 70, 74, .78);
+}
+.admin-pill {
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin-actions a,
+.admin-actions button {
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin-primary-button,
+.admin-secondary-button,
+.admin-editor-actions a,
+.admin-editor-actions button,
+.admin-form-actions a,
+.admin-form-actions button {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+.admin-editor-toolbar button,
+.admin-editor-media button {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 560;
+}
+.admin-field span,
+.admin-editor-media > div,
+.admin-editor-media label {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  color: rgba(48, 61, 65, .72);
+}
+.admin-field small,
+.admin-editor-media small,
+.admin-editor-media label small {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(77, 88, 92, .62);
+}
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(12, 16, 18, .9);
+}
+.admin-field textarea {
+  line-height: 1.78;
+}
+.admin-about-form textarea {
+  font-family: SimSun, "Songti SC", "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 2;
+}
+.admin-notice,
+.admin-empty,
+.admin-upload-status,
+.admin-placeholder-panel p,
+.admin-comment-card p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.admin-login-card h1 {
+  font-size: 26px;
+  font-weight: 650;
+}
+.admin-login-card p,
+.admin-login-card button {
+  font-size: 15px;
+}
+
+/* Admin clarity pass */
+.admin-shell {
+  background:
+    linear-gradient(90deg, #121922 0 232px, transparent 232px),
+    linear-gradient(180deg, #edf7fa 0%, #f6fbfc 100%);
+  grid-template-columns: 232px minmax(0, 1fr);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #172023;
+}
+.admin-sidebar {
+  padding: 38px 24px 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .035), transparent 34%),
+    #121922;
+  color: rgba(245, 248, 247, .82);
+}
+.admin-brand {
+  gap: 8px;
+  margin-bottom: 58px;
+  padding: 0 10px;
+}
+.admin-brand span {
+  font-family: "Times New Roman", SimSun, "Songti SC", serif;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .01em;
+  color: rgba(255, 255, 255, .94);
+}
+.admin-brand small {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  color: rgba(245, 248, 247, .42);
+}
+.admin-menu {
+  gap: 7px;
+}
+.admin-menu a,
+.admin-sidebar-footer a,
+.admin-sidebar-footer button {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 560;
+  letter-spacing: 0;
+  color: rgba(245, 248, 247, .72);
+}
+.admin-menu a span {
+  width: 28px;
+  font-family: "Times New Roman", serif;
+  font-size: 12px;
+  font-style: normal;
+  color: rgba(245, 248, 247, .42);
+}
+.admin-menu a:hover,
+.admin-menu a.active,
+.admin-sidebar-footer a:hover,
+.admin-sidebar-footer button:hover {
+  border-color: rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, .07);
+  color: rgba(255, 255, 255, .96);
+}
+.admin-menu a.active {
+  background: rgba(255, 255, 255, .1);
+  box-shadow: inset 3px 0 0 rgba(183, 119, 92, .9);
+}
+.admin-menu a.active span {
+  color: rgba(228, 186, 166, .95);
+}
+.admin-sidebar-footer {
+  border-top-color: rgba(255, 255, 255, .08);
+}
+.admin-sidebar-footer a,
+.admin-sidebar-footer button {
+  min-height: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(245, 248, 247, .52);
+}
+.admin-content {
+  width: min(100%, 1180px);
+  padding: 50px clamp(42px, 5vw, 82px) 72px;
+}
+.admin-topbar {
+  min-height: 52px;
+  padding-bottom: 32px;
+}
+.admin-topbar h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: clamp(28px, 2.25vw, 36px);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -.01em;
+  color: #11181b;
+}
+.admin-topbar h1 span {
+  font-size: 14px;
+  font-weight: 520;
+  color: rgba(55, 68, 72, .66);
+}
+.admin-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  color: rgba(55, 68, 72, .58);
+}
+.admin-stat-card,
+.admin-table,
+.admin-form,
+.admin-about-form,
+.admin-placeholder-panel,
+.admin-comment-card,
+.admin-login-card {
+  border: 1px solid rgba(52, 78, 88, .12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .58);
+  box-shadow: none;
+}
+.admin-stat-grid {
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.admin-stat-card {
+  min-height: 112px;
+  padding: 24px 26px;
+}
+.admin-stat-card strong {
+  font-size: clamp(34px, 3vw, 44px);
+  font-weight: 640;
+  color: #11181b;
+}
+.admin-stat-card span {
+  font-size: 14px;
+  font-weight: 680;
+  color: rgba(31, 45, 49, .8);
+}
+.admin-stat-card small {
+  font-size: 13px;
+  color: rgba(55, 68, 72, .62);
+}
+.admin-section {
+  gap: 18px;
+}
+.admin-section h2,
+.admin-placeholder-panel h2,
+.admin-comment-card h2 {
+  font-size: 19px;
+  font-weight: 660;
+  color: #11181b;
+}
+.admin-table {
+  background: rgba(255, 255, 255, .5);
+}
+.admin-row {
+  grid-template-columns: minmax(360px, 1fr) 76px 104px 130px 118px 116px;
+  min-height: 70px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(52, 78, 88, .09);
+  font-size: 14px;
+}
+.admin-row-head {
+  min-height: 42px;
+  background: rgba(221, 240, 246, .9);
+  color: rgba(39, 54, 59, .7);
+  font-size: 12px;
+  font-weight: 700;
+}
+.admin-title-cell strong {
+  font-size: 15px;
+  font-weight: 680;
+  color: #101719;
+}
+.admin-title-cell p {
+  font-size: 13px;
+  color: rgba(55, 68, 72, .68);
+}
+.admin-pill {
+  min-height: 23px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.admin-actions a,
+.admin-actions button,
+.admin-secondary-button,
+.admin-editor-actions a,
+.admin-editor-toolbar button,
+.admin-editor-media button {
+  border-color: rgba(52, 78, 88, .16);
+  background: rgba(255, 255, 255, .66);
+  color: rgba(23, 49, 59, .82);
+  font-weight: 600;
+}
+.admin-actions a:hover,
+.admin-actions button:hover,
+.admin-secondary-button:hover,
+.admin-editor-actions a:hover,
+.admin-editor-toolbar button:hover,
+.admin-editor-media button:hover {
+  background: rgba(255, 255, 255, .92);
+  border-color: rgba(52, 78, 88, .26);
+}
+.admin-primary-button,
+.admin-editor-actions button,
+.admin-form-actions button {
+  background: #0e1b28;
+  color: rgba(255, 255, 255, .96);
+  box-shadow: none;
+}
+.admin-form,
+.admin-about-form {
+  max-width: 980px;
+  padding: 30px;
+}
+.admin-form-grid {
+  gap: 16px;
+}
+.admin-field {
+  gap: 7px;
+}
+.admin-field span,
+.admin-editor-media > div,
+.admin-editor-media label {
+  font-size: 13px;
+  font-weight: 680;
+  color: rgba(31, 45, 49, .74);
+}
+.admin-field small,
+.admin-editor-media small,
+.admin-editor-media label small {
+  font-size: 12.5px;
+  color: rgba(55, 68, 72, .62);
+}
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  border: 1px solid rgba(52, 78, 88, .16);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .86);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 15px;
+  color: #101719;
+}
+.admin-field input,
+.admin-field select {
+  min-height: 46px;
+}
+.admin-field textarea {
+  line-height: 1.72;
+}
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+  border-color: rgba(14, 27, 40, .42);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(14, 27, 40, .06);
+}
+.admin-editor-toolbar {
+  gap: 10px;
+  padding-bottom: 22px;
+  border-bottom-color: rgba(52, 78, 88, .1);
+}
+.admin-toolbar-group {
+  border-color: rgba(52, 78, 88, .12);
+  background: rgba(255, 255, 255, .44);
+}
+.admin-about-form textarea {
+  min-height: 500px;
+  background: rgba(255, 255, 255, .88);
+  font-family: SimSun, "Songti SC", "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.95;
+  color: #121819;
+}
+.admin-notice,
+.admin-empty,
+.admin-upload-status,
+.admin-placeholder-panel p,
+.admin-comment-card p {
+  font-size: 14px;
+  line-height: 1.62;
 }
 
 .footer {
