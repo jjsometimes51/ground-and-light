@@ -59,16 +59,16 @@ img, video { max-width: 100%; display: block; }
   display: inline-block;
   line-height: 0;
   width: clamp(286px, 24.6vw, 371px);
-  aspect-ratio: 746 / 237;
-  overflow: hidden;
+  overflow: visible;
 }
 .logo-full {
-  width: clamp(588px, 50.6vw, 764px);
+  display: block;
+  width: 100%;
   height: auto;
-  max-width: none;
+  max-width: 100%;
   object-fit: contain;
   opacity: .88;
-  transform: translate(-25.586%, -39.2%);
+  transform: none;
 }
 .nav {
   display:flex;
@@ -140,8 +140,8 @@ img, video { max-width: 100%; display: block; }
   font-weight: 400;
   line-height: 1.7;
   margin: 30px 0 0;
-  padding-left: 18px;
-  border-left: 1px solid rgba(155, 96, 73, .22);
+  padding-left: 0;
+  border-left: 0;
 }
 .hero-window {
   grid-column: 8 / 13;
@@ -486,8 +486,15 @@ img, video { max-width: 100%; display: block; }
   margin: 0 auto;
 }
 .about-content {
-  width: min(100% - 64px, 760px);
+  width: min(100% - 64px, 620px);
+  margin-left: auto;
+  margin-right: auto;
   min-height: clamp(260px, 38vh, 440px);
+}
+.about-content p {
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .article-back {
   display: inline-block;
@@ -2128,7 +2135,7 @@ img, video { max-width: 100%; display: block; }
   }
   .page-header { padding: 30px 0 38px; }
   .logo { width: 278px; }
-  .logo-full { width: 573px; }
+  .logo-full { width: 100%; }
   .nav {
     flex-wrap: wrap;
     gap: 16px 28px;
@@ -2206,7 +2213,7 @@ img, video { max-width: 100%; display: block; }
   }
   .page-header { padding: 28px 0 34px; }
   .logo { width: min(238px, 74vw); }
-  .logo-full { width: min(490px, 152vw); }
+  .logo-full { width: 100%; }
   .nav {
     width: 100%;
     flex-wrap: wrap;
