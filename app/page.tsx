@@ -16,8 +16,7 @@ async function getFeaturedPost(): Promise<FeaturedPost | null> {
       *[
         _type == "post" &&
         featured == true &&
-        coalesce(visibility, "public") != "private" &&
-        (!defined(publishedAt) || publishedAt <= now())
+        coalesce(visibility, "public") != "private"
       ] | order(coalesce(publishedAt, _createdAt) desc)[0]{
         title,
         slug,

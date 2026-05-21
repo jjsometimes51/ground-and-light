@@ -48,7 +48,6 @@ export default function PostReader({ slug, initialPost }: { slug: string; initia
     const query = `*[
       _type == "post" &&
       slug.current == ${JSON.stringify(slug)} &&
-      (!defined(publishedAt) || publishedAt <= now()) &&
       coalesce(visibility, "public") in ["public", "password"]
     ][0]${postProjection}`
     const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`

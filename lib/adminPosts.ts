@@ -122,6 +122,28 @@ function requiredString(formData: FormData, name: string) {
   return value
 }
 
+function localDateTimeToISOString(value: string | undefined, timezoneOffset: string | undefined) {
+  if (!value) return undefined
+
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/)
+  const offset = Number(timezoneOffset)
+
+  if (!match || Number.isNaN(offset)) {
+    return new Date(value).toISOString()
+  }
+
+  const [, year, month, day, hour, minute] = match
+  const utcTime = Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute)
+  )
+
+  return new Date(utcTime + offset * 60 * 1000).toISOString()
+}
+
 async function sanityMutate(mutations: unknown[]) {
   const token = requireToken()
   const response = await fetch(
@@ -185,6 +207,7 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
     }
     const language = requiredString(formData, 'language')
     const publishedAt = optionalString(formData, 'publishedAt')
+    const timezoneOffset = optionalString(formData, 'timezoneOffset')
     const bodyText = String(formData.get('body') || '')
     const coverImageAssetId = optionalString(formData, 'coverImageAssetId')
     const featured = formData.get('featured') === 'on'
@@ -218,7 +241,7 @@ export async function createPost(_prevState: AdminActionState, formData: FormDat
             }
           } : {}),
           excerpt: optionalString(formData, 'excerpt'),
-          publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+          publishedAt: localDateTimeToISOString(publishedAt, timezoneOffset) || new Date().toISOString(),
           body: bodyToBlocks(bodyText)
         }
       }
@@ -248,6 +271,7 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
     }
     const language = requiredString(formData, 'language')
     const publishedAt = optionalString(formData, 'publishedAt')
+    const timezoneOffset = optionalString(formData, 'timezoneOffset')
     const currentSlug = optionalString(formData, 'currentSlug')
     const slugText = optionalString(formData, 'slugText')
     const bodyText = String(formData.get('body') || '')
@@ -283,7 +307,7 @@ export async function updatePost(_prevState: AdminActionState, formData: FormDat
               }
             } : {}),
             excerpt: optionalString(formData, 'excerpt'),
-            publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
+            publishedAt: localDateTimeToISOString(publishedAt, timezoneOffset),
             body: bodyToBlocks(bodyText),
             ...(slugText ? {
               slugText,

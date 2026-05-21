@@ -10,7 +10,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     `*[
       _type == "post" &&
       slug.current == $slug &&
-      (!defined(publishedAt) || publishedAt <= now()) &&
       coalesce(visibility, "public") in ["public", "password"]
     ][0]{title, excerpt, slug}`,
     { slug }
@@ -42,7 +41,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     `*[
       _type == "post" &&
       slug.current == $slug &&
-      (!defined(publishedAt) || publishedAt <= now()) &&
       coalesce(visibility, "public") in ["public", "password"]
     ][0]{
       title,

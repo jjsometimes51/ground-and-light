@@ -16,7 +16,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await sanityFetch<SitemapPost[]>(
     `*[
       _type == "post" &&
-      (!defined(publishedAt) || publishedAt <= now()) &&
       coalesce(visibility, "public") == "public"
     ]{slug, _updatedAt}`
   ).catch(() => [])

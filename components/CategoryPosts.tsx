@@ -45,8 +45,7 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
     const query = `*[
       _type == "post" &&
       category == ${JSON.stringify(category)} &&
-      (!defined(publishedAt) || publishedAt <= now()) &&
-      coalesce(visibility, "public") == "public"
+      coalesce(visibility, "public") != "private"
     ] | order(coalesce(publishedAt, _createdAt) desc){
       title,
       slug,

@@ -8,8 +8,7 @@ export default async function CategoryPage({ category }: { category: string }) {
     `*[
       _type == "post" &&
       category == $category &&
-      (!defined(publishedAt) || publishedAt <= now()) &&
-      coalesce(visibility, "public") == "public"
+      coalesce(visibility, "public") != "private"
     ] | order(coalesce(publishedAt, _createdAt) desc){
       title,
       slug,

@@ -209,6 +209,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
     <form action={formAction} className="admin-form admin-editor-form" style={formStyle}>
       {post?._id && <input type="hidden" name="_id" value={post._id} />}
       {post?.slug?.current && <input type="hidden" name="currentSlug" value={post.slug.current} />}
+      <input type="hidden" name="timezoneOffset" value={new Date().getTimezoneOffset()} />
       <input type="hidden" name="coverImageAssetId" value={coverImageAssetId} />
       <input ref={coverInputRef} type="file" accept="image/*" hidden onChange={event => handleCoverUpload(event.target.files?.[0])} />
       <input ref={imageInputRef} type="file" accept="image/*" hidden onChange={event => handleBodyUpload(event.target.files?.[0])} />
