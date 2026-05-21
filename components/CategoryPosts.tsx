@@ -67,11 +67,6 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
 
   return (
     <section className="category-index">
-      <header className="category-heading">
-        <h1>{meta.title}</h1>
-        <p>{meta.subtitle}</p>
-      </header>
-
       {posts.length ? (
         <div className="category-list" aria-label={`${meta.title} posts`}>
           {posts.map((post, index) => (

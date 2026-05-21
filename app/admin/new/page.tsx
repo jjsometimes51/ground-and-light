@@ -18,7 +18,7 @@ export default async function NewPostPage() {
   await requireAdminAuth()
 
   return (
-    <AdminShell active="更新文章">
+    <AdminShell active="写新文章">
       <header className="admin-topbar">
         <h1>写新文章</h1>
       </header>

@@ -80,8 +80,8 @@ export default async function AboutPage() {
 
   return (
     <>
-      <Header />
-      <main className="container article">
+      <Header active="About" />
+      <main className="article about-page">
         <article className="article-inner about-content">
           {about?.length ? <PortableText value={about} /> : null}
         </article>

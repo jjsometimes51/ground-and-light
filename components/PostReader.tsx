@@ -6,6 +6,7 @@ import PostContent from './PostContent'
 type Post = {
   title: string
   category: string
+  publishedAt?: string
   visibility?: string
   postPassword?: string
   excerpt?: string
