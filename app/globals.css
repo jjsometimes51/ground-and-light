@@ -211,6 +211,7 @@ img, video { max-width: 100%; display: block; }
   background-position: 50% 44%;
   background-size: cover;
   background-repeat: no-repeat;
+  border-radius: 8px;
 }
 .hero-window-feature::before {
   content: "";
@@ -270,6 +271,7 @@ img, video { max-width: 100%; display: block; }
   object-position: 50% 44%;
   opacity: .82;
   filter: saturate(.82) contrast(.94) brightness(1.04);
+  border-radius: 8px;
 }
 .hero-aperture {
   width: 100%;
@@ -631,6 +633,38 @@ img, video { max-width: 100%; display: block; }
   margin: clamp(64px, 8vw, 104px) auto 0;
   padding-top: clamp(34px, 4vw, 48px);
   border-top: 1px solid rgba(48, 70, 78, .12);
+}
+.approved-comments {
+  width: min(100%, 690px);
+  margin: clamp(64px, 8vw, 96px) auto 0;
+  padding-top: clamp(30px, 4vw, 44px);
+  border-top: 1px solid rgba(48, 70, 78, .12);
+}
+.approved-comments > p {
+  margin: 0 0 24px;
+  color: rgba(104, 117, 95, .72);
+  font-family: var(--display);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1;
+}
+.approved-comment-list {
+  display: grid;
+  gap: 22px;
+}
+.approved-comment p {
+  margin: 0;
+  color: rgba(27, 35, 35, .82);
+  font-size: 16px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+.approved-comment time {
+  display: block;
+  margin-top: 8px;
+  color: rgba(82, 94, 92, .48);
+  font-size: 12px;
+  font-style: italic;
 }
 .comment-box > p {
   margin: 0 0 24px;
@@ -2555,6 +2589,7 @@ img, video { max-width: 100%; display: block; }
   width: 100%;
   max-width: none;
   padding: clamp(54px, 8vh, 92px) 0 clamp(104px, 14vh, 164px);
+  background: #e6f3f7;
 }
 .article-inner {
   width: min(100% - 64px, 900px);
@@ -2598,22 +2633,22 @@ img, video { max-width: 100%; display: block; }
   margin-bottom: clamp(42px, 5vw, 64px);
 }
 .article-figure {
-  width: min(100%, 820px);
+  width: min(100%, 680px);
   margin: clamp(52px, 6.4vw, 86px) auto;
   line-height: 0;
 }
 .article-cover {
-  width: min(100%, 840px);
+  width: min(100%, 720px);
   margin-top: clamp(52px, 6.4vw, 86px);
 }
 .article-figure img,
 .article-figure video {
   display: block;
   width: 100%;
-  max-height: 76vh;
+  max-height: 64vh;
   height: auto;
   object-fit: contain;
-  border-radius: 0;
+  border-radius: 8px;
   background: transparent;
   box-shadow: none;
 }
@@ -2632,7 +2667,7 @@ img, video { max-width: 100%; display: block; }
     max-width: 660px;
   }
   .article-figure {
-    width: min(100%, 760px);
+    width: min(100%, 640px);
   }
 }
 @media (max-width: 560px) {
@@ -2665,11 +2700,12 @@ img, video { max-width: 100%; display: block; }
     margin: 30px 0 40px;
   }
   .article-figure {
-    width: 100%;
+    width: min(100%, 92vw);
     margin: 40px 0;
   }
   .article-figure img,
   .article-figure video {
     max-height: none;
+    border-radius: 7px;
   }
 }

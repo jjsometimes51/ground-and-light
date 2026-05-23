@@ -15,9 +15,12 @@ function cleanReferrer(value: unknown) {
   return String(value || '').trim().slice(0, 240)
 }
 
-function anonymousIpHash(request: Request) {
+function getIpAddress(request: Request) {
   const forwarded = request.headers.get('x-forwarded-for') || ''
-  const ip = forwarded.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown'
+  return forwarded.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown'
+}
+
+function anonymousIpHash(ip: string) {
   const salt = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || 'ground-light'
 
   return createHash('sha256')
@@ -35,13 +38,16 @@ export async function POST(request: Request) {
   }
 
   try {
+    const ipAddress = getIpAddress(request)
+
     await sanityMutate([
       {
         create: {
           _type: 'visit',
           path,
           referrer: cleanReferrer(payload?.referrer),
-          ipHash: anonymousIpHash(request),
+          ipAddress,
+          ipHash: anonymousIpHash(ipAddress),
           createdAt: new Date().toISOString()
         }
       }

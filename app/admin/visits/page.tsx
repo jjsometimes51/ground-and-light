@@ -16,6 +16,7 @@ export const dynamic = 'force-dynamic'
 type Visit = {
   _id: string
   path: string
+  ipAddress?: string
   ipHash?: string
   createdAt?: string
 }
@@ -42,6 +43,7 @@ export default async function AdminVisitsPage() {
     *[_type == "visit"] | order(createdAt desc)[0...120]{
       _id,
       path,
+      ipAddress,
       ipHash,
       createdAt
     }
@@ -53,7 +55,7 @@ export default async function AdminVisitsPage() {
   return (
     <AdminShell active="访客统计">
       <header className="admin-topbar">
-        <h1>访客统计 <span>轻量匿名记录</span></h1>
+        <h1>访客统计 <span>仅后台可见</span></h1>
         <a href="/admin/visits" className="admin-secondary-button">刷新</a>
       </header>
 
@@ -76,7 +78,7 @@ export default async function AdminVisitsPage() {
         <div className="admin-row admin-row-head" role="row">
           <span>时间</span>
           <span>页面</span>
-          <span>匿名 IP</span>
+          <span>IP 地址</span>
         </div>
         {visits.length === 0 ? (
           <div className="admin-empty">暂时没有访问记录。</div>
@@ -84,7 +86,7 @@ export default async function AdminVisitsPage() {
           <article className="admin-row admin-visit-row" role="row" key={visit._id}>
             <span className="admin-date">{formatDate(visit.createdAt)}</span>
             <strong>{visit.path}</strong>
-            <span>{visit.ipHash || '—'}</span>
+            <span>{visit.ipAddress || visit.ipHash || '—'}</span>
           </article>
         ))}
       </div>

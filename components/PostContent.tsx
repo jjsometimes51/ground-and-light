@@ -1,5 +1,6 @@
 import { PortableText } from 'next-sanity'
 import { urlFor } from '../lib/sanity'
+import ApprovedComments from './ApprovedComments'
 import CommentForm from './CommentForm'
 
 type MediaFile = {
@@ -199,6 +200,7 @@ export default function PostContent({ post }: { post: Post }) {
         </figure>
       )}
       {body.length > 0 && <PortableText value={body} components={portableComponents} />}
+      <ApprovedComments postId={post._id} />
       <CommentForm postId={post._id} />
     </article>
   )

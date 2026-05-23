@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { sanityFetch } from '../../../lib/sanity'
 import { sanityMutate } from '../../../lib/sanityWrite'
 
 export const runtime = 'nodejs'
@@ -14,6 +15,29 @@ function cleanBody(value: unknown) {
     .replace(/\s+\n/g, '\n')
     .trim()
     .slice(0, 1200)
+}
+
+export async function GET(request: Request) {
+  const postId = cleanPostId(new URL(request.url).searchParams.get('postId'))
+
+  if (!postId) {
+    return NextResponse.json({ comments: [] })
+  }
+
+  const comments = await sanityFetch<Array<{ _id: string; body: string; createdAt?: string }>>(
+    `*[
+      _type == "comment" &&
+      post._ref == $postId &&
+      status == "approved"
+    ] | order(createdAt asc){
+      _id,
+      body,
+      createdAt
+    }`,
+    { postId }
+  ).catch(() => [])
+
+  return NextResponse.json({ comments })
 }
 
 export async function POST(request: Request) {
