@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import PostContent from './PostContent'
 
 type Post = {
+  _id?: string
   title: string
   category: string
   publishedAt?: string
@@ -21,6 +22,7 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2026-05-12'
 
 const postProjection = `{
+  _id,
   title,
   category,
   visibility,
@@ -36,7 +38,17 @@ const postProjection = `{
   publishedAt
 }`
 
-export default function PostReader({ slug, initialPost }: { slug: string; initialPost: Post | null }) {
+export default function PostReader({
+  slug,
+  sourceCategory,
+  documentId,
+  initialPost
+}: {
+  slug: string
+  sourceCategory?: string
+  documentId?: string
+  initialPost: Post | null
+}) {
   const [post, setPost] = useState(initialPost)
   const [passwordValue, setPasswordValue] = useState('')
   const [passwordError, setPasswordError] = useState('')
@@ -47,7 +59,9 @@ export default function PostReader({ slug, initialPost }: { slug: string; initia
 
     const query = `*[
       _type == "post" &&
-      slug.current == ${JSON.stringify(slug)} &&
+      (${JSON.stringify(documentId || '')} == "" || _id == ${JSON.stringify(documentId || '')}) &&
+      (${JSON.stringify(documentId || '')} != "" || slug.current == ${JSON.stringify(slug)}) &&
+      (${JSON.stringify(documentId || '')} != "" || ${JSON.stringify(sourceCategory || '')} == "" || category == ${JSON.stringify(sourceCategory || '')}) &&
       coalesce(visibility, "public") in ["public", "password"]
     ][0]${postProjection}`
     const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`
@@ -56,7 +70,7 @@ export default function PostReader({ slug, initialPost }: { slug: string; initia
       .then(response => response.ok ? response.json() : Promise.reject(response))
       .then(payload => setPost(payload.result || null))
       .catch(() => setPost(null))
-  }, [initialPost, slug])
+  }, [initialPost, slug, sourceCategory, documentId])
 
   useEffect(() => {
     setUnlocked(window.sessionStorage.getItem(`ground-light-post-${slug}`) === 'unlocked')

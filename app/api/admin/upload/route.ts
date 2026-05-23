@@ -5,6 +5,21 @@ import { apiVersion, dataset, projectId } from '../../../../lib/sanity'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+const maxUploadSize = 40 * 1024 * 1024
+const allowedMimeTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'audio/mpeg',
+  'audio/mp4',
+  'audio/wav',
+  'audio/ogg',
+  'video/mp4',
+  'video/quicktime',
+  'video/webm'
+]
+
 function token() {
   const value = process.env.SANITY_API_TOKEN
 
@@ -25,6 +40,14 @@ export async function POST(request: Request) {
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+  }
+
+  if (file.size > maxUploadSize) {
+    return NextResponse.json({ error: '文件太大，请控制在 40MB 以内。' }, { status: 413 })
+  }
+
+  if (!allowedMimeTypes.includes(file.type)) {
+    return NextResponse.json({ error: '暂时只支持图片、音频和视频文件。' }, { status: 415 })
   }
 
   const kind = file.type.startsWith('image/') ? 'images' : 'files'

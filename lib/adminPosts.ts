@@ -62,6 +62,7 @@ function slugifyWithDate(input: string) {
 
 function bodyToBlocks(value: string): Array<PortableTextBlock | PortableMediaBlock> {
   return value
+    .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean)

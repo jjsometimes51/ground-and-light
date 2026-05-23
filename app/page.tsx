@@ -3,7 +3,9 @@ import Header from '../components/Header'
 import { sanityFetch, urlFor, withTimeout } from '../lib/sanity'
 
 type FeaturedPost = {
+  _id?: string
   title?: string
+  category?: string
   slug?: { current?: string }
   coverImage?: any
   publishedAt?: string
@@ -19,6 +21,8 @@ async function getFeaturedPost(): Promise<FeaturedPost | null> {
         coalesce(visibility, "public") != "private"
       ] | order(coalesce(publishedAt, _createdAt) desc)[0]{
         title,
+        _id,
+        category,
         slug,
         coverImage,
         publishedAt,
@@ -27,6 +31,8 @@ async function getFeaturedPost(): Promise<FeaturedPost | null> {
       *[_type == "siteSettings"][0]{
         featuredPost->{
           title,
+          _id,
+          category,
           slug,
           coverImage,
           publishedAt,
@@ -49,6 +55,17 @@ function formatDate(value?: string) {
   }).format(new Date(value))
 }
 
+function postHref(post: FeaturedPost) {
+  if (!post.slug?.current) return '#'
+
+  const params = new URLSearchParams()
+  if (post.category) params.set('category', post.category)
+  if (post._id) params.set('id', post._id)
+
+  const query = params.toString()
+  return `/post/${post.slug.current}${query ? `?${query}` : ''}`
+}
+
 export default async function Home() {
   const featuredPost = await getFeaturedPost()
   const windowImage = featuredPost?.coverImage
@@ -69,7 +86,7 @@ Let the mind flow freely.`}</p>
           <aside className="hero-window" aria-label="Editorial image window">
             {featuredPost?.slug?.current ? (
               <Link
-                href={`/post/${featuredPost.slug.current}`}
+                href={postHref(featuredPost)}
                 className="hero-window-feature"
                 style={{ backgroundImage: `url(${windowImage})` }}
               >

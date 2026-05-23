@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { requireAdminAuth } from '../../../lib/adminAuth'
+import { sanityFetch } from '../../../lib/sanity'
 import AdminShell from '../AdminShell'
 
 export const metadata: Metadata = {
@@ -12,34 +13,80 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
+type Visit = {
+  _id: string
+  path: string
+  ipHash?: string
+  createdAt?: string
+}
+
+function todayPrefix() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function formatDate(value?: string) {
+  if (!value) return '—'
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value))
+}
+
 export default async function AdminVisitsPage() {
   await requireAdminAuth()
+  const visits = await sanityFetch<Visit[]>(`
+    *[_type == "visit"] | order(createdAt desc)[0...120]{
+      _id,
+      path,
+      ipHash,
+      createdAt
+    }
+  `).catch(() => [])
+  const today = todayPrefix()
+  const todayVisits = visits.filter(visit => visit.createdAt?.startsWith(today))
+  const uniqueIps = new Set(visits.map(visit => visit.ipHash).filter(Boolean)).size
 
   return (
     <AdminShell active="访客统计">
       <header className="admin-topbar">
-        <h1>访客统计 <span>暂未接入</span></h1>
-        <button className="admin-secondary-button" type="button">刷新</button>
+        <h1>访客统计 <span>轻量匿名记录</span></h1>
+        <a href="/admin/visits" className="admin-secondary-button">刷新</a>
       </header>
 
       <section className="admin-stat-grid admin-stat-grid-compact">
         <article className="admin-stat-card">
-          <strong>—</strong>
+          <strong>{visits.length}</strong>
           <span>累计访问量</span>
         </article>
         <article className="admin-stat-card">
-          <strong>—</strong>
+          <strong>{todayVisits.length}</strong>
           <span>今日访问</span>
         </article>
         <article className="admin-stat-card">
-          <strong>—</strong>
+          <strong>{uniqueIps}</strong>
           <span>独立 IP 数</span>
         </article>
       </section>
 
-      <div className="admin-placeholder-panel">
-        <h2>统计功能下一步接入</h2>
-        <p>现在网站部署在 Vercel，建议后面接入 Vercel Web Analytics 或一个轻量访问记录接口。页面结构先保留，之后数据接上就会显示访问时间、页面和来源。</p>
+      <div className="admin-table" role="table" aria-label="Recent visits">
+        <div className="admin-row admin-row-head" role="row">
+          <span>时间</span>
+          <span>页面</span>
+          <span>匿名 IP</span>
+        </div>
+        {visits.length === 0 ? (
+          <div className="admin-empty">暂时没有访问记录。</div>
+        ) : visits.map(visit => (
+          <article className="admin-row admin-visit-row" role="row" key={visit._id}>
+            <span className="admin-date">{formatDate(visit.createdAt)}</span>
+            <strong>{visit.path}</strong>
+            <span>{visit.ipHash || '—'}</span>
+          </article>
+        ))}
       </div>
     </AdminShell>
   )

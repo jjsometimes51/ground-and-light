@@ -605,8 +605,8 @@ img, video { max-width: 100%; display: block; }
   width: 100%;
   max-height: 76vh;
   background: transparent;
-  border-radius: 7px;
-  box-shadow: 0 22px 58px rgba(72, 82, 78, .09);
+  border-radius: 0;
+  box-shadow: none;
 }
 .article-figure img {
   height: auto;
@@ -626,6 +626,58 @@ img, video { max-width: 100%; display: block; }
   color: rgba(20, 20, 20, .78);
   border-bottom: 1px solid rgba(21, 25, 26, .16);
 }
+.comment-box {
+  width: min(100%, 690px);
+  margin: clamp(64px, 8vw, 104px) auto 0;
+  padding-top: clamp(34px, 4vw, 48px);
+  border-top: 1px solid rgba(48, 70, 78, .12);
+}
+.comment-box > p {
+  margin: 0 0 24px;
+  color: rgba(104, 117, 95, .72);
+  font-family: var(--display);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1;
+}
+.comment-box form {
+  display: grid;
+  gap: 14px;
+}
+.comment-box textarea {
+  min-height: 110px;
+  resize: vertical;
+  border: 1px solid rgba(52, 78, 88, .14);
+  background: rgba(255, 255, 255, .36);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 16px;
+}
+.comment-box button {
+  width: fit-content;
+  min-height: 42px;
+  border: 1px solid rgba(20, 20, 20, .72);
+  background: rgba(10, 13, 15, .92);
+  color: rgba(255, 255, 255, .94);
+  font: inherit;
+  padding: 0 20px;
+  cursor: pointer;
+}
+.comment-box button:disabled {
+  opacity: .56;
+  cursor: wait;
+}
+.comment-success,
+.comment-error {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.comment-success { color: rgba(44, 96, 68, .9); }
+.comment-error { color: rgba(132, 44, 61, .9); }
 .password-gate {
   min-height: 46vh;
   display: grid;
@@ -1233,6 +1285,35 @@ img, video { max-width: 100%; display: block; }
   color: rgba(77, 88, 92, .74);
   font-size: 14px;
   line-height: 1.7;
+}
+.admin-comment-list {
+  width: min(100%, 920px);
+  display: grid;
+  gap: 12px;
+}
+.admin-comment-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 20px;
+  border: 1px solid rgba(106, 132, 142, .13);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .2);
+}
+.admin-comment-item h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: rgba(12, 16, 18, .88);
+}
+.admin-comment-item p {
+  margin: 0;
+  color: rgba(23, 32, 35, .78);
+  font-size: 14px;
+  line-height: 1.72;
+}
+.admin-visit-row {
+  grid-template-columns: minmax(150px, .8fr) minmax(220px, 1fr) minmax(120px, .6fr);
 }
 .admin-login {
   min-height: 100svh;
@@ -2076,6 +2157,41 @@ img, video { max-width: 100%; display: block; }
   gap: 16px;
   align-items: start;
 }
+.admin-editor-summary-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+.admin-advanced-options {
+  border: 1px solid rgba(52, 78, 88, .12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .28);
+  padding: 0;
+}
+.admin-advanced-options summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 13px 15px;
+  color: rgba(20, 31, 35, .72);
+  font-size: 13px;
+  font-weight: 650;
+}
+.admin-advanced-options summary::-webkit-details-marker {
+  display: none;
+}
+.admin-advanced-options summary::after {
+  content: "+";
+  float: right;
+  color: rgba(20, 31, 35, .5);
+  font-weight: 500;
+}
+.admin-advanced-options[open] summary {
+  border-bottom: 1px solid rgba(52, 78, 88, .1);
+}
+.admin-advanced-options[open] summary::after {
+  content: "-";
+}
+.admin-advanced-options .admin-field {
+  padding: 15px;
+}
 .admin-toolbar-group {
   border-color: rgba(52, 78, 88, .12);
   background: rgba(255, 255, 255, .44);
@@ -2497,9 +2613,9 @@ img, video { max-width: 100%; display: block; }
   max-height: 76vh;
   height: auto;
   object-fit: contain;
-  border-radius: 7px;
+  border-radius: 0;
   background: transparent;
-  box-shadow: 0 22px 58px rgba(72, 82, 78, .09);
+  box-shadow: none;
 }
 @media (max-width: 980px) {
   .article-inner {

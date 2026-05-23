@@ -1,5 +1,6 @@
 import { PortableText } from 'next-sanity'
 import { urlFor } from '../lib/sanity'
+import CommentForm from './CommentForm'
 
 type MediaFile = {
   asset?: {
@@ -10,6 +11,7 @@ type MediaFile = {
 }
 
 type Post = {
+  _id?: string
   title: string
   category: string
   publishedAt?: string
@@ -20,12 +22,94 @@ type Post = {
   video?: MediaFile
 }
 
+function key(prefix: string, index: number) {
+  return `${prefix}${index.toString(36)}`
+}
+
 function isAudio(file?: MediaFile) {
   return file?.asset?.mimeType?.startsWith('audio/') || file?.asset?.url?.match(/\.(mp3|m4a|wav|ogg)$/i)
 }
 
 function isVideo(file?: MediaFile) {
   return file?.asset?.mimeType?.startsWith('video/') || file?.asset?.url?.match(/\.(mp4|mov|webm)$/i)
+}
+
+function fileUrlFromRef(ref: string) {
+  const match = ref.match(/^file-([a-f0-9]+)-([a-z0-9]+)$/i)
+  if (!match) return undefined
+
+  return `https://cdn.sanity.io/files/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'replace-me'}/${process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'}/${match[1]}.${match[2]}`
+}
+
+function textBlock(text: string, index: number) {
+  return {
+    _type: 'block',
+    _key: key('b', index),
+    style: 'normal',
+    markDefs: [],
+    children: [
+      {
+        _type: 'span',
+        _key: key('s', index),
+        text,
+        marks: []
+      }
+    ]
+  }
+}
+
+function mediaBlockFromMarkdown(text: string, index: number) {
+  const imageMatch = text.match(/^!\[([^\]]*)\]\(sanity:(image-[^)]+)\)$/)
+  if (imageMatch) {
+    return {
+      _type: 'image',
+      _key: key('i', index),
+      asset: {
+        _type: 'reference',
+        _ref: imageMatch[2]
+      }
+    }
+  }
+
+  const fileMatch = text.match(/^\[([^\]]+)\]\(sanity:(file-[^)]+)\)$/)
+  if (fileMatch) {
+    const url = fileUrlFromRef(fileMatch[2])
+
+    return {
+      _type: 'file',
+      _key: key('f', index),
+      asset: {
+        _type: 'reference',
+        _ref: fileMatch[2],
+        ...(url ? { url } : {})
+      }
+    }
+  }
+
+  return null
+}
+
+function normalizeBody(body?: any[]) {
+  if (!body) return []
+
+  return body.flatMap((block, blockIndex) => {
+    if (block?._type !== 'block') return [block]
+
+    const text = block.children?.map((child: any) => child?.text || '').join('') || ''
+    if (!text.includes('sanity:')) return [block]
+
+    return text
+      .replace(/\r\n/g, '\n')
+      .split(/\n{2,}/)
+      .map((part: string, partIndex: number) => {
+        const trimmed = part.trim()
+        return mediaBlockFromMarkdown(trimmed, blockIndex * 100 + partIndex) || textBlock(trimmed, blockIndex * 100 + partIndex)
+      })
+      .filter((part: any) => {
+        if (part?._type !== 'block') return true
+        return Boolean(part.children?.some((child: any) => child?.text))
+      })
+  })
 }
 
 const portableComponents = {
@@ -88,6 +172,7 @@ export default function PostContent({ post }: { post: Post }) {
   const dateLabel = formatDate(post.publishedAt)
   const categoryHref = `/${post.category.toLowerCase()}`
   const categoryLabel = categoryLabels[post.category] || post.category
+  const body = normalizeBody(post.body)
 
   return (
     <article className="article-inner">
@@ -113,7 +198,8 @@ export default function PostContent({ post }: { post: Post }) {
           <video controls src={post.video.asset.url} />
         </figure>
       )}
-      {post.body && <PortableText value={post.body} components={portableComponents} />}
+      {body.length > 0 && <PortableText value={body} components={portableComponents} />}
+      <CommentForm postId={post._id} />
     </article>
   )
 }

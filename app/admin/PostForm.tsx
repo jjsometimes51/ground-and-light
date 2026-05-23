@@ -323,18 +323,7 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
         </label>
       )}
 
-      <div className="admin-editor-compact-row">
-        <label className="admin-field" style={fieldStyle}>
-          <span style={labelTextStyle}>Slug 基础文字</span>
-          <input
-            name="slugText"
-            defaultValue={post?.slugText || ''}
-            placeholder={mode === 'create' ? 'ronda / sunset / alhambra' : '留空则不修改现有 slug'}
-            style={controlStyle}
-          />
-          <small style={{ color: 'rgba(45, 58, 62, .72)', fontSize: '12px', lineHeight: 1.45 }}>填写英文或拼音即可，系统会自动加当天日期。</small>
-        </label>
-
+      <div className="admin-editor-compact-row admin-editor-summary-row">
         <label className="admin-field" style={fieldStyle}>
           <span style={labelTextStyle}>摘要</span>
           <textarea
@@ -345,6 +334,22 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
           />
         </label>
       </div>
+
+      <details className="admin-advanced-options">
+        <summary>链接选项（可选）</summary>
+        <label className="admin-field" style={fieldStyle}>
+          <span style={labelTextStyle}>Slug 基础文字</span>
+          <input
+            name="slugText"
+            defaultValue={post?.slugText || ''}
+            placeholder={mode === 'create' ? '可不填，系统会根据标题和日期自动生成' : '留空则不修改现有链接'}
+            style={controlStyle}
+          />
+          <small style={{ color: 'rgba(45, 58, 62, .72)', fontSize: '12px', lineHeight: 1.45 }}>
+            只有想手动控制文章链接时才需要填写。新文章不填时，系统会根据标题和日期自动生成。
+          </small>
+        </label>
+      </details>
 
       <div className="admin-editor-media admin-feature-panel">
         <div>

@@ -4,15 +4,34 @@ import Footer from '../../../components/Footer'
 import PostReader from '../../../components/PostReader'
 import { sanityFetch, withTimeout } from '../../../lib/sanity'
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+function cleanCategory(value?: string) {
+  return ['Travel', 'Notes', 'Work', 'Musings'].includes(value || '') ? value : undefined
+}
+
+function cleanDocumentId(value?: string) {
+  return value && /^[a-zA-Z0-9._-]+$/.test(value) ? value : undefined
+}
+
+export async function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: Promise<{ slug: string }>
+  searchParams?: Promise<{ category?: string; id?: string }>
+}): Promise<Metadata> {
   const { slug } = await params
+  const resolvedSearchParams = await searchParams
+  const sourceCategory = cleanCategory(resolvedSearchParams?.category)
+  const documentId = cleanDocumentId(resolvedSearchParams?.id)
   const post = await withTimeout(sanityFetch<any | null>(
     `*[
       _type == "post" &&
-      slug.current == $slug &&
+      ($documentId == "" || _id == $documentId) &&
+      ($documentId != "" || slug.current == $slug) &&
+      ($documentId != "" || $sourceCategory == "" || category == $sourceCategory) &&
       coalesce(visibility, "public") in ["public", "password"]
     ][0]{title, excerpt, slug}`,
-    { slug }
+    { slug, sourceCategory: sourceCategory || '', documentId: documentId || '' }
   ).catch(() => null), null, 3000)
 
   if (!post?.title) {
@@ -35,14 +54,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
-export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PostPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ slug: string }>
+  searchParams?: Promise<{ category?: string; id?: string }>
+}) {
   const { slug } = await params
+  const resolvedSearchParams = await searchParams
+  const sourceCategory = cleanCategory(resolvedSearchParams?.category)
+  const documentId = cleanDocumentId(resolvedSearchParams?.id)
   const post = await withTimeout(sanityFetch<any | null>(
     `*[
       _type == "post" &&
-      slug.current == $slug &&
+      ($documentId == "" || _id == $documentId) &&
+      ($documentId != "" || slug.current == $slug) &&
+      ($documentId != "" || $sourceCategory == "" || category == $sourceCategory) &&
       coalesce(visibility, "public") in ["public", "password"]
     ][0]{
+      _id,
       title,
       category,
       visibility,
@@ -57,14 +88,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       video{asset->{url, mimeType, originalFilename}},
       publishedAt
     }`,
-    { slug }
+    { slug, sourceCategory: sourceCategory || '', documentId: documentId || '' }
   ).catch(() => null), null, 10000)
 
   return (
     <>
       <Header active={post?.category} />
       <main className="container article">
-        <PostReader slug={slug} initialPost={post} />
+        <PostReader slug={slug} sourceCategory={sourceCategory} documentId={documentId} initialPost={post} />
       </main>
       <Footer />
     </>

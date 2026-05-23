@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type Post = {
+  _id?: string
   title: string
   slug: { current: string }
   category: string
@@ -37,6 +38,17 @@ function formatDate(value?: string) {
   }).format(new Date(value))
 }
 
+function postHref(post: Post, fallbackCategory: string) {
+  const params = new URLSearchParams()
+  const category = post.category || fallbackCategory
+
+  if (category) params.set('category', category)
+  if (post._id) params.set('id', post._id)
+
+  const query = params.toString()
+  return `/post/${post.slug.current}${query ? `?${query}` : ''}`
+}
+
 export default function CategoryPosts({ category, initialPosts }: { category: string; initialPosts: Post[] }) {
   const [posts, setPosts] = useState(initialPosts)
   const meta = categoryMeta[category] || { title: category, subtitle: category }
@@ -48,6 +60,7 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
       coalesce(visibility, "public") != "private"
     ] | order(coalesce(publishedAt, _createdAt) desc){
       title,
+      _id,
       slug,
       category,
       excerpt,
@@ -69,7 +82,11 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
       {posts.length ? (
         <div className="category-list" aria-label={`${meta.title} posts`}>
           {posts.map((post, index) => (
-            <Link className="category-row" href={`/post/${post.slug.current}`} key={post.slug.current}>
+            <Link
+              className="category-row"
+              href={postHref(post, category)}
+              key={post._id || `${post.category}-${post.slug.current}`}
+            >
               <span className="category-row-index">{formatIndex(index)}</span>
               <span className="category-row-main">
                 <span className="category-row-meta">{meta.title} · {meta.subtitle}</span>

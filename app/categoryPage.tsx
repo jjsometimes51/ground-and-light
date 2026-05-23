@@ -10,6 +10,7 @@ export default async function CategoryPage({ category }: { category: string }) {
       category == $category &&
       coalesce(visibility, "public") != "private"
     ] | order(coalesce(publishedAt, _createdAt) desc){
+      _id,
       title,
       slug,
       category,
