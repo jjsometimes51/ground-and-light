@@ -13,6 +13,11 @@ type Post = {
   publishedAt?: string
   _createdAt?: string
   previewImage?: any
+  bodyPreview?: Array<{
+    _type?: string
+    asset?: any
+    children?: Array<{ text?: string }>
+  }>
 }
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'replace-me'
@@ -51,6 +56,28 @@ function postHref(post: Post, fallbackCategory: string) {
   return `/post/${post.slug.current}${query ? `?${query}` : ''}`
 }
 
+function imageFromPost(post: Post) {
+  if (post.previewImage) return post.previewImage
+
+  const imageBlock = post.bodyPreview?.find(block => block?._type === 'image' && block.asset)
+  if (imageBlock) return imageBlock
+
+  const text = post.bodyPreview
+    ?.flatMap(block => block.children?.map(child => child.text || '') || [])
+    .join('\n') || ''
+  const markdownImage = text.match(/sanity:(image-[a-z0-9-]+)/i)
+
+  if (!markdownImage) return null
+
+  return {
+    _type: 'image',
+    asset: {
+      _type: 'reference',
+      _ref: markdownImage[1]
+    }
+  }
+}
+
 export default function CategoryPosts({ category, initialPosts }: { category: string; initialPosts: Post[] }) {
   const [posts, setPosts] = useState(initialPosts)
   const meta = categoryMeta[category] || { title: category, subtitle: category }
@@ -68,7 +95,12 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
       excerpt,
       publishedAt,
       _createdAt,
-      "previewImage": coalesce(coverImage, body[_type == "image"][0])
+      "previewImage": coalesce(coverImage, body[_type == "image"][0]),
+      "bodyPreview": body[]{
+        _type,
+        asset,
+        children[]{text}
+      }
     }`
     const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`
 
@@ -84,29 +116,33 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
     <section className="category-index">
       {posts.length ? (
         <div className="category-list" aria-label={`${meta.title} posts`}>
-          {posts.map((post, index) => (
-            <Link
-              className="category-row"
-              href={postHref(post, category)}
-              key={post._id || `${post.category}-${post.slug.current}`}
-            >
-              <span className="category-row-index">{formatIndex(index)}</span>
-              <span className="category-row-main">
-                <span className="category-row-meta">{meta.title} · {meta.subtitle}</span>
-                <strong>{post.title}</strong>
-                {post.excerpt && <em>{post.excerpt}</em>}
-              </span>
-              {post.previewImage && (
-                <span className="category-row-media" aria-hidden="true">
-                  <img
-                    alt=""
-                    src={urlFor(post.previewImage).width(520).height(340).fit('crop').auto('format').url()}
-                  />
+          {posts.map((post, index) => {
+            const image = imageFromPost(post)
+
+            return (
+              <Link
+                className="category-row"
+                href={postHref(post, category)}
+                key={post._id || `${post.category}-${post.slug.current}`}
+              >
+                <span className="category-row-index">{formatIndex(index)}</span>
+                <span className="category-row-main">
+                  <span className="category-row-meta">{meta.title} · {meta.subtitle}</span>
+                  <strong>{post.title}</strong>
+                  {post.excerpt && <em>{post.excerpt}</em>}
                 </span>
-              )}
-              <time>{formatDate(post.publishedAt || post._createdAt)}</time>
-            </Link>
-          ))}
+                {image && (
+                  <span className="category-row-media" aria-hidden="true">
+                    <img
+                      alt=""
+                      src={urlFor(image).width(520).height(340).fit('crop').auto('format').url()}
+                    />
+                  </span>
+                )}
+                <time>{formatDate(post.publishedAt || post._createdAt)}</time>
+              </Link>
+            )
+          })}
         </div>
       ) : (
         <div className="category-empty">— 暂无文章 —</div>
