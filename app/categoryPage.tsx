@@ -18,6 +18,7 @@ export default async function CategoryPage({ category }: { category: string }) {
       publishedAt,
       _createdAt,
       coverImage,
+      "previewImage": coalesce(coverImage, body[_type == "image"][0]),
       audio{asset->{url, mimeType, originalFilename}},
       video{asset->{url, mimeType, originalFilename}}
     }`,

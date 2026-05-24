@@ -50,7 +50,7 @@ export default async function AdminVisitsPage() {
   `).catch(() => [])
   const today = todayPrefix()
   const todayVisits = visits.filter(visit => visit.createdAt?.startsWith(today))
-  const uniqueIps = new Set(visits.map(visit => visit.ipHash).filter(Boolean)).size
+  const uniqueIps = new Set(visits.map(visit => visit.ipAddress || visit.ipHash).filter(Boolean)).size
 
   return (
     <AdminShell active="访客统计">
@@ -86,7 +86,7 @@ export default async function AdminVisitsPage() {
           <article className="admin-row admin-visit-row" role="row" key={visit._id}>
             <span className="admin-date">{formatDate(visit.createdAt)}</span>
             <strong>{visit.path}</strong>
-            <span>{visit.ipAddress || visit.ipHash || '—'}</span>
+            <span>{visit.ipAddress || (visit.ipHash ? '旧匿名记录' : '—')}</span>
           </article>
         ))}
       </div>

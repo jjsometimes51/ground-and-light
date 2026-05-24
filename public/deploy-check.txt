@@ -1,2 +1,2 @@
 Ground & Light deploy check
-Version: 2026-05-23-comments-ip-article-blue-window-rounded
+Version: 2026-05-24-visits-upload-window-fix

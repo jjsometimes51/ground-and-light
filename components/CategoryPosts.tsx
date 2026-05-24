@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { urlFor } from '../lib/sanity'
 
 type Post = {
   _id?: string
@@ -11,6 +12,7 @@ type Post = {
   excerpt?: string
   publishedAt?: string
   _createdAt?: string
+  previewImage?: any
 }
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'replace-me'
@@ -65,7 +67,8 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
       category,
       excerpt,
       publishedAt,
-      _createdAt
+      _createdAt,
+      "previewImage": coalesce(coverImage, body[_type == "image"][0])
     }`
     const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`
 
@@ -93,6 +96,14 @@ export default function CategoryPosts({ category, initialPosts }: { category: st
                 <strong>{post.title}</strong>
                 {post.excerpt && <em>{post.excerpt}</em>}
               </span>
+              {post.previewImage && (
+                <span className="category-row-media" aria-hidden="true">
+                  <img
+                    alt=""
+                    src={urlFor(post.previewImage).width(520).height(340).fit('crop').auto('format').url()}
+                  />
+                </span>
+              )}
               <time>{formatDate(post.publishedAt || post._createdAt)}</time>
             </Link>
           ))}

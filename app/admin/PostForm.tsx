@@ -154,10 +154,21 @@ export default function PostForm({ action, post, mode, canSave }: PostFormProps)
       credentials: 'same-origin',
       body: formData
     })
-    const payload = await response.json()
+    const responseText = await response.text()
+    let payload: any = null
+
+    try {
+      payload = responseText ? JSON.parse(responseText) : null
+    } catch {
+      payload = null
+    }
 
     if (!response.ok) {
-      throw new Error(payload?.error || '上传失败')
+      const message = payload?.error || responseText || '上传失败'
+      if (message.toLowerCase().includes('request entity too large')) {
+        throw new Error('文件太大，服务器拒绝接收。请先压缩图片/视频后再上传。')
+      }
+      throw new Error(message)
     }
 
     setUploadMessage('上传完成')

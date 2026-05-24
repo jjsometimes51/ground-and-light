@@ -35,7 +35,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const formData = await request.formData()
+  const formData = await request.formData().catch(() => null)
+  if (!formData) {
+    return NextResponse.json({ error: '上传请求无法读取。文件可能过大，请压缩后再上传。' }, { status: 413 })
+  }
   const file = formData.get('file')
 
   if (!(file instanceof File)) {
@@ -65,11 +68,18 @@ export async function POST(request: Request) {
     }
   )
 
-  const payload = await response.json().catch(() => null)
+  const responseText = await response.text()
+  let payload: any = null
+
+  try {
+    payload = responseText ? JSON.parse(responseText) : null
+  } catch {
+    payload = null
+  }
 
   if (!response.ok) {
     return NextResponse.json(
-      { error: payload?.message || payload?.error || 'Upload failed' },
+      { error: payload?.message || payload?.error || responseText || 'Upload failed' },
       { status: response.status }
     )
   }
