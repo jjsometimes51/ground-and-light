@@ -612,6 +612,8 @@ img, video { max-width: 100%; display: block; }
   width: min(100%, 820px);
   margin: clamp(52px, 6.4vw, 86px) auto;
   line-height: 0;
+  overflow: hidden;
+  border-radius: 12px;
 }
 .article-cover {
   width: min(100%, 840px);
@@ -627,7 +629,7 @@ img, video { max-width: 100%; display: block; }
   box-shadow: none;
 }
 .article .article-rounded-media {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   overflow: hidden;
 }
 .article-figure img {
@@ -2661,6 +2663,8 @@ img, video { max-width: 100%; display: block; }
   width: min(100%, 680px);
   margin: clamp(52px, 6.4vw, 86px) auto;
   line-height: 0;
+  overflow: hidden;
+  border-radius: 12px;
 }
 .article-cover {
   width: min(100%, 720px);
@@ -2678,7 +2682,7 @@ img, video { max-width: 100%; display: block; }
   box-shadow: none;
 }
 .article .article-rounded-media {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   overflow: hidden;
 }
 @media (max-width: 980px) {
@@ -2731,13 +2735,14 @@ img, video { max-width: 100%; display: block; }
   .article-figure {
     width: min(100%, 92vw);
     margin: 40px 0;
+    border-radius: 10px;
   }
   .article-figure img,
   .article-figure video {
     max-height: none;
-    border-radius: 7px;
+    border-radius: 10px;
   }
   .article .article-rounded-media {
-    border-radius: 7px !important;
+    border-radius: 10px !important;
   }
 }
