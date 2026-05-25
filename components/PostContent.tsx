@@ -113,6 +113,16 @@ function normalizeBody(body?: any[]) {
   })
 }
 
+function isMediaPortableBlock(block: any) {
+  if (block?._type === 'image') return true
+  if (block?._type === 'file') return true
+
+  if (block?._type !== 'block') return false
+
+  const text = block.children?.map((child: any) => child?.text || '').join('') || ''
+  return /!\[[^\]]*\]\(sanity:image-[^)]+\)/.test(text) || /\[[^\]]+\]\(sanity:file-[^)]+\)/.test(text)
+}
+
 const portableComponents = {
   types: {
     image: ({ value }: { value: any }) => {
@@ -174,6 +184,8 @@ export default function PostContent({ post }: { post: Post }) {
   const categoryHref = `/${post.category.toLowerCase()}`
   const categoryLabel = categoryLabels[post.category] || post.category
   const body = normalizeBody(post.body)
+  const textBody = body.filter((block: any) => !isMediaPortableBlock(block))
+  const mediaBody = body.filter((block: any) => isMediaPortableBlock(block))
 
   return (
     <article className="article-inner">
@@ -184,6 +196,7 @@ export default function PostContent({ post }: { post: Post }) {
       </div>
       <h1>{post.title}</h1>
       {post.excerpt && <p className="article-excerpt">{post.excerpt}</p>}
+      {textBody.length > 0 && <PortableText value={textBody} components={portableComponents} />}
       {post.coverImage && (
         <figure className="article-figure article-cover">
           <img className="article-rounded-media" src={urlFor(post.coverImage).width(1600).url()} alt="" />
@@ -199,7 +212,7 @@ export default function PostContent({ post }: { post: Post }) {
           <video className="article-rounded-media" controls src={post.video.asset.url} />
         </figure>
       )}
-      {body.length > 0 && <PortableText value={body} components={portableComponents} />}
+      {mediaBody.length > 0 && <PortableText value={mediaBody} components={portableComponents} />}
       <ApprovedComments postId={post._id} />
       <CommentForm postId={post._id} />
     </article>

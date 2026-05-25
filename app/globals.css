@@ -2746,3 +2746,30 @@ img, video { max-width: 100%; display: block; }
     border-radius: 7px !important;
   }
 }
+
+/* Final media-radius guard: article pages use soft corners; homepage window stays square. */
+.article-inner .article-figure,
+.article-inner .article-cover {
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+.article-inner .article-figure > img,
+.article-inner .article-figure > video,
+.article-inner img.article-rounded-media,
+.article-inner video.article-rounded-media {
+  display: block;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+@media (max-width: 560px) {
+  .article-inner .article-figure,
+  .article-inner .article-cover,
+  .article-inner .article-figure > img,
+  .article-inner .article-figure > video,
+  .article-inner img.article-rounded-media,
+  .article-inner video.article-rounded-media {
+    border-radius: 7px !important;
+  }
+}

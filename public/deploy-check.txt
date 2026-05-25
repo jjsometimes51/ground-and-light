@@ -1,2 +1,2 @@
 Ground & Light deploy check
-Version: 2026-05-25-list-and-article-rounded-window-square-smaller
+Version: 2026-05-25-article-media-rounded-and-bottom
