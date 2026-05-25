@@ -588,11 +588,11 @@ img, video { max-width: 100%; display: block; }
 .article h1 {
   font-family: var(--serif);
   font-weight:400;
-  font-size: clamp(36px, 3.45vw, 52px);
+  font-size: clamp(30px, 2.85vw, 42px);
   line-height:1.12;
   color: var(--ink-strong);
   max-width: 690px;
-  margin: 0 auto 28px;
+  margin: 0 auto 56px;
 }
 .article p {
   max-width: 690px;
@@ -610,14 +610,14 @@ img, video { max-width: 100%; display: block; }
 }
 .article-figure {
   width: min(100%, 820px);
-  margin: clamp(52px, 6.4vw, 86px) auto;
+  margin: 30px auto;
   line-height: 0;
   overflow: hidden;
   border-radius: 8px;
 }
 .article-cover {
   width: min(100%, 840px);
-  margin-top: clamp(52px, 6.4vw, 86px);
+  margin-top: 30px;
 }
 .article-figure img,
 .article-figure video {
@@ -2644,9 +2644,9 @@ img, video { max-width: 100%; display: block; }
   margin-bottom: clamp(42px, 5vw, 66px);
 }
 .article h1 {
-  font-size: clamp(36px, 3.45vw, 52px);
+  font-size: clamp(30px, 2.85vw, 42px);
   line-height: 1.12;
-  margin-bottom: 28px;
+  margin-bottom: 56px;
 }
 .article p {
   font-size: 18px;
@@ -2661,14 +2661,14 @@ img, video { max-width: 100%; display: block; }
 }
 .article-figure {
   width: min(100%, 680px);
-  margin: clamp(52px, 6.4vw, 86px) auto;
+  margin: 30px auto;
   line-height: 0;
   overflow: hidden;
   border-radius: 8px;
 }
 .article-cover {
   width: min(100%, 720px);
-  margin-top: clamp(52px, 6.4vw, 86px);
+  margin-top: 30px;
 }
 .article-figure img,
 .article-figure video {
@@ -2719,9 +2719,9 @@ img, video { max-width: 100%; display: block; }
     margin-bottom: 14px;
   }
   .article h1 {
-    font-size: clamp(30px, 8.5vw, 38px);
+    font-size: clamp(26px, 7.3vw, 34px);
     line-height: 1.18;
-    margin-bottom: 22px;
+    margin-bottom: 44px;
   }
   .article p,
   .article-excerpt {
@@ -2734,7 +2734,7 @@ img, video { max-width: 100%; display: block; }
   }
   .article-figure {
     width: min(100%, 92vw);
-    margin: 40px 0;
+    margin: 26px 0;
     border-radius: 7px;
   }
   .article-figure img,
@@ -2752,6 +2752,7 @@ img, video { max-width: 100%; display: block; }
 .article-inner .article-cover {
   overflow: hidden !important;
   border-radius: 8px !important;
+  clip-path: inset(0 round 8px) !important;
 }
 
 .article-inner .article-figure > img,
@@ -2761,6 +2762,7 @@ img, video { max-width: 100%; display: block; }
   display: block;
   overflow: hidden !important;
   border-radius: 8px !important;
+  clip-path: inset(0 round 8px) !important;
 }
 
 @media (max-width: 560px) {
@@ -2771,5 +2773,6 @@ img, video { max-width: 100%; display: block; }
   .article-inner img.article-rounded-media,
   .article-inner video.article-rounded-media {
     border-radius: 7px !important;
+    clip-path: inset(0 round 7px) !important;
   }
 }

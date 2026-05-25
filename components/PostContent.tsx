@@ -1,4 +1,5 @@
 import { PortableText } from 'next-sanity'
+import type { CSSProperties } from 'react'
 import { urlFor } from '../lib/sanity'
 import ApprovedComments from './ApprovedComments'
 import CommentForm from './CommentForm'
@@ -129,8 +130,8 @@ const portableComponents = {
       if (!value?.asset) return null
 
       return (
-        <figure className="article-figure">
-          <img className="article-rounded-media" src={urlFor(value).width(1400).url()} alt="" />
+        <figure className="article-figure" style={mediaFrameStyle}>
+          <img className="article-rounded-media" style={mediaElementStyle} src={urlFor(value).width(1400).url()} alt="" />
         </figure>
       )
     },
@@ -147,8 +148,8 @@ const portableComponents = {
 
       if (isVideo(value)) {
         return (
-          <figure className="article-figure">
-            <video className="article-rounded-media" controls src={value.asset.url} />
+          <figure className="article-figure" style={mediaFrameStyle}>
+            <video className="article-rounded-media" style={mediaElementStyle} controls src={value.asset.url} />
           </figure>
         )
       }
@@ -179,6 +180,17 @@ const categoryLabels: Record<string, string> = {
   Musings: '随笔'
 }
 
+const mediaFrameStyle: CSSProperties = {
+  borderRadius: '8px',
+  clipPath: 'inset(0 round 8px)',
+  overflow: 'hidden'
+}
+
+const mediaElementStyle: CSSProperties = {
+  borderRadius: '8px',
+  clipPath: 'inset(0 round 8px)'
+}
+
 export default function PostContent({ post }: { post: Post }) {
   const dateLabel = formatDate(post.publishedAt)
   const categoryHref = `/${post.category.toLowerCase()}`
@@ -198,8 +210,8 @@ export default function PostContent({ post }: { post: Post }) {
       {post.excerpt && <p className="article-excerpt">{post.excerpt}</p>}
       {textBody.length > 0 && <PortableText value={textBody} components={portableComponents} />}
       {post.coverImage && (
-        <figure className="article-figure article-cover">
-          <img className="article-rounded-media" src={urlFor(post.coverImage).width(1600).url()} alt="" />
+        <figure className="article-figure article-cover" style={mediaFrameStyle}>
+          <img className="article-rounded-media" style={mediaElementStyle} src={urlFor(post.coverImage).width(1600).url()} alt="" />
         </figure>
       )}
       {post.audio?.asset?.url && (
@@ -208,8 +220,8 @@ export default function PostContent({ post }: { post: Post }) {
         </div>
       )}
       {post.video?.asset?.url && (
-        <figure className="article-figure">
-          <video className="article-rounded-media" controls src={post.video.asset.url} />
+        <figure className="article-figure" style={mediaFrameStyle}>
+          <video className="article-rounded-media" style={mediaElementStyle} controls src={post.video.asset.url} />
         </figure>
       )}
       {mediaBody.length > 0 && <PortableText value={mediaBody} components={portableComponents} />}
