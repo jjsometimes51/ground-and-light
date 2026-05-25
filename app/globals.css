@@ -211,7 +211,7 @@ img, video { max-width: 100%; display: block; }
   background-position: 50% 44%;
   background-size: cover;
   background-repeat: no-repeat;
-  border-radius: 8px;
+  border-radius: 0;
 }
 .hero-window-feature::before {
   content: "";
@@ -271,7 +271,7 @@ img, video { max-width: 100%; display: block; }
   object-position: 50% 44%;
   opacity: .82;
   filter: saturate(.82) contrast(.94) brightness(1.04);
-  border-radius: 8px;
+  border-radius: 0;
 }
 .hero-aperture {
   width: 100%;
