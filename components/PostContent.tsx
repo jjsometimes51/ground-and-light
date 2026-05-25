@@ -120,7 +120,7 @@ const portableComponents = {
 
       return (
         <figure className="article-figure">
-          <img src={urlFor(value).width(1400).url()} alt="" />
+          <img className="article-rounded-media" src={urlFor(value).width(1400).url()} alt="" />
         </figure>
       )
     },
@@ -138,7 +138,7 @@ const portableComponents = {
       if (isVideo(value)) {
         return (
           <figure className="article-figure">
-            <video controls src={value.asset.url} />
+            <video className="article-rounded-media" controls src={value.asset.url} />
           </figure>
         )
       }
@@ -186,7 +186,7 @@ export default function PostContent({ post }: { post: Post }) {
       {post.excerpt && <p className="article-excerpt">{post.excerpt}</p>}
       {post.coverImage && (
         <figure className="article-figure article-cover">
-          <img src={urlFor(post.coverImage).width(1600).url()} alt="" />
+          <img className="article-rounded-media" src={urlFor(post.coverImage).width(1600).url()} alt="" />
         </figure>
       )}
       {post.audio?.asset?.url && (
@@ -196,7 +196,7 @@ export default function PostContent({ post }: { post: Post }) {
       )}
       {post.video?.asset?.url && (
         <figure className="article-figure">
-          <video controls src={post.video.asset.url} />
+          <video className="article-rounded-media" controls src={post.video.asset.url} />
         </figure>
       )}
       {body.length > 0 && <PortableText value={body} components={portableComponents} />}
