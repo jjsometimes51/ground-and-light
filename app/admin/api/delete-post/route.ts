@@ -19,6 +19,49 @@ function requireToken() {
   return token
 }
 
+async function queryExistingDocumentIds(token: string, baseId: string) {
+  const query = '*[_id in $ids]._id'
+  const params = { ids: [baseId, `drafts.${baseId}`] }
+  const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}&$ids=${encodeURIComponent(JSON.stringify(params.ids))}`
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    cache: 'no-store'
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(`Sanity 查询失败：${response.status} ${text}`)
+  }
+
+  const payload = await response.json()
+  return Array.isArray(payload.result) ? payload.result.filter((value: unknown) => typeof value === 'string') : []
+}
+
+async function deleteSanityDocument(token: string, id: string) {
+  const response = await fetch(
+    `https://${projectId}.api.sanity.io/v${apiVersion}/data/mutate/${dataset}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        mutations: [
+          { delete: { id } }
+        ]
+      })
+    }
+  )
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(`Sanity 删除失败：${response.status} ${text}`)
+  }
+}
+
 function revalidateAdminAndSite() {
   revalidatePath('/')
   revalidatePath('/admin')
@@ -41,26 +84,10 @@ export async function POST(request: Request) {
 
     const baseId = id.replace(/^drafts\./, '')
     const token = requireToken()
-    const response = await fetch(
-      `https://${projectId}.api.sanity.io/v${apiVersion}/data/mutate/${dataset}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          mutations: [
-            { delete: { id: baseId } },
-            { delete: { id: `drafts.${baseId}` } }
-          ]
-        })
-      }
-    )
+    const existingIds = await queryExistingDocumentIds(token, baseId)
 
-    if (!response.ok) {
-      const text = await response.text()
-      return NextResponse.json({ error: `Sanity 删除失败：${response.status} ${text}` }, { status: 500 })
+    for (const existingId of existingIds) {
+      await deleteSanityDocument(token, existingId)
     }
 
     revalidateAdminAndSite()
