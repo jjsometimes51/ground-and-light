@@ -19,29 +19,65 @@ type PortableTextBlock = {
   }>
 }
 
+type PortableMediaBlock = {
+  _type: 'image' | 'file'
+  _key: string
+  asset: {
+    _type: 'reference'
+    _ref: string
+  }
+}
+
 function key(prefix: string) {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`
 }
 
-function bodyToBlocks(value: string): PortableTextBlock[] {
+function bodyToBlocks(value: string): Array<PortableTextBlock | PortableMediaBlock> {
   return value
+    .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean)
-    .map(paragraph => ({
-      _type: 'block',
-      _key: key('b'),
-      style: 'normal',
-      markDefs: [],
-      children: [
-        {
-          _type: 'span',
-          _key: key('s'),
-          text: paragraph,
-          marks: []
+    .map(paragraph => {
+      const imageMatch = paragraph.match(/^!\[([^\]]*)\]\(sanity:(image-[^)]+)\)$/)
+      if (imageMatch) {
+        return {
+          _type: 'image',
+          _key: key('i'),
+          asset: {
+            _type: 'reference',
+            _ref: imageMatch[2]
+          }
         }
-      ]
-    }))
+      }
+
+      const fileMatch = paragraph.match(/^\[([^\]]+)\]\(sanity:(file-[^)]+)\)$/)
+      if (fileMatch) {
+        return {
+          _type: 'file',
+          _key: key('f'),
+          asset: {
+            _type: 'reference',
+            _ref: fileMatch[2]
+          }
+        }
+      }
+
+      return {
+        _type: 'block',
+        _key: key('b'),
+        style: 'normal',
+        markDefs: [],
+        children: [
+          {
+            _type: 'span',
+            _key: key('s'),
+            text: paragraph,
+            marks: []
+          }
+        ]
+      }
+    })
 }
 
 function token() {

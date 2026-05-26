@@ -17,6 +17,10 @@ export const dynamic = 'force-dynamic'
 type AboutSettings = {
   _id?: string
   about?: Array<{
+    _type?: string
+    assetId?: string
+    filename?: string
+    mimeType?: string
     children?: Array<{ text?: string }>
   }>
 }
@@ -29,7 +33,21 @@ function aboutText(blocks?: AboutSettings['about']) {
 }
 
 function blocksToText(blocks?: AboutSettings['about']) {
-  const text = aboutText(blocks)
+  const text = (blocks || [])
+    .map(block => {
+      if (block._type === 'image' && block.assetId) {
+        return `![${block.filename || '图片'}](sanity:${block.assetId})`
+      }
+
+      if (block._type === 'file' && block.assetId) {
+        const label = block.mimeType?.startsWith('video/') ? '视频' : block.mimeType?.startsWith('audio/') ? '音频' : '文件'
+        return `[${label}: ${block.filename || 'media'}](sanity:${block.assetId})`
+      }
+
+      return (block.children || []).map(child => child.text || '').join('')
+    })
+    .filter(Boolean)
+    .join('\n\n')
 
   const isOldDefault = [
     'Builder. Observer.',
@@ -56,7 +74,11 @@ export default async function AdminAboutPage({ searchParams }: { searchParams: P
   const settingsList = await withTimeout(sanityFetch<AboutSettings[]>(
     `*[_type == "siteSettings"] | order(_updatedAt desc){
       _id,
-      about[_type == "block"]{
+      about[]{
+        _type,
+        "assetId": asset._ref,
+        "filename": asset->originalFilename,
+        "mimeType": asset->mimeType,
         children[]{text}
       }
     }`

@@ -14,6 +14,11 @@ export default defineType({
       to: [{ type: 'post' }],
       description: 'Select the post that appears inside the framed homepage window.'
     }),
-    defineField({ name: 'about', title: 'About', type: 'array', of: [{ type: 'block' }] })
+    defineField({
+      name: 'about',
+      title: 'About',
+      type: 'array',
+      of: [{ type: 'block' }, { type: 'image' }, { type: 'file' }]
+    })
   ]
 })

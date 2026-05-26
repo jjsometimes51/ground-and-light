@@ -9,7 +9,6 @@ type Post = {
   category: string
   publishedAt?: string
   visibility?: string
-  postPassword?: string
   excerpt?: string
   coverImage?: any
   body?: any[]
@@ -26,7 +25,6 @@ const postProjection = `{
   title,
   category,
   visibility,
-  postPassword,
   excerpt,
   coverImage,
   body[]{
@@ -52,7 +50,7 @@ export default function PostReader({
   const [post, setPost] = useState(initialPost)
   const [passwordValue, setPasswordValue] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  const [unlocked, setUnlocked] = useState(false)
+  const [isCheckingPassword, setIsCheckingPassword] = useState(false)
 
   useEffect(() => {
     if (initialPost) return
@@ -62,7 +60,7 @@ export default function PostReader({
       (${JSON.stringify(documentId || '')} == "" || _id == ${JSON.stringify(documentId || '')}) &&
       (${JSON.stringify(documentId || '')} != "" || slug.current == ${JSON.stringify(slug)}) &&
       (${JSON.stringify(documentId || '')} != "" || ${JSON.stringify(sourceCategory || '')} == "" || category == ${JSON.stringify(sourceCategory || '')}) &&
-      coalesce(visibility, "public") in ["public", "password"]
+      coalesce(visibility, "public") == "public"
     ][0]${postProjection}`
     const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`
 
@@ -72,28 +70,42 @@ export default function PostReader({
       .catch(() => setPost(null))
   }, [initialPost, slug, sourceCategory, documentId])
 
-  useEffect(() => {
-    setUnlocked(window.sessionStorage.getItem(`ground-light-post-${slug}`) === 'unlocked')
-  }, [slug])
-
   if (!post) return null
 
-  if (post.visibility === 'password' && !unlocked) {
+  if (post.visibility === 'password' && !post.body?.length) {
     return (
       <section className="password-gate" aria-label="Password protected post">
         <form
           className="password-card"
-          onSubmit={event => {
+          onSubmit={async event => {
             event.preventDefault()
+            setIsCheckingPassword(true)
+            setPasswordError('')
 
-            if (passwordValue === post.postPassword) {
-              window.sessionStorage.setItem(`ground-light-post-${slug}`, 'unlocked')
-              setUnlocked(true)
-              setPasswordError('')
-              return
+            try {
+              const response = await fetch('/api/post-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  slug,
+                  sourceCategory,
+                  documentId,
+                  password: passwordValue
+                })
+              })
+              const payload = await response.json().catch(() => null)
+
+              if (!response.ok || !payload?.post) {
+                setPasswordError(payload?.error || '密码不正确，请再试一次。')
+                return
+              }
+
+              setPost(payload.post)
+            } catch {
+              setPasswordError('验证失败，请稍后再试。')
+            } finally {
+              setIsCheckingPassword(false)
             }
-
-            setPasswordError('密码不正确，请再试一次。')
           }}
         >
           <p>这篇文章需要密码。</p>
@@ -106,7 +118,9 @@ export default function PostReader({
             required
           />
           {passwordError && <span>{passwordError}</span>}
-          <button type="submit">进入文章</button>
+          <button type="submit" disabled={isCheckingPassword}>
+            {isCheckingPassword ? '正在验证...' : '进入文章'}
+          </button>
         </form>
       </section>
     )

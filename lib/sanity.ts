@@ -31,7 +31,12 @@ export async function sanityFetch<T>(query: string, params: Record<string, strin
     return current.replaceAll(`$${key}`, JSON.stringify(value))
   }, query)
   const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(resolvedQuery)}`
-  const response = await fetch(url, { cache: 'no-store' })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+
+  const response = await fetch(url, { cache: 'no-store', signal: controller.signal }).finally(() => {
+    clearTimeout(timeout)
+  })
 
   if (!response.ok) {
     throw new Error(`Sanity query failed: ${response.status}`)

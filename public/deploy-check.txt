@@ -1,2 +1,2 @@
 Ground & Light deploy check
-Version: 2026-05-25-force-all-article-media-rounded-title-spacing
+Version: 2026-05-26-password-verified-about-upload
