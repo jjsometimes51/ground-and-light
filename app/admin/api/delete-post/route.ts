@@ -19,7 +19,7 @@ function requireToken() {
   return token
 }
 
-async function queryExistingDocumentIds(token: string, baseId: string) {
+async function queryExistingDocumentIds(token: string, baseId: string): Promise<string[]> {
   const query = '*[_id in $ids]._id'
   const params = { ids: [baseId, `drafts.${baseId}`] }
   const url = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}&$ids=${encodeURIComponent(JSON.stringify(params.ids))}`
@@ -36,10 +36,12 @@ async function queryExistingDocumentIds(token: string, baseId: string) {
   }
 
   const payload = await response.json()
-  return Array.isArray(payload.result) ? payload.result.filter((value: unknown) => typeof value === 'string') : []
+  return Array.isArray(payload.result)
+    ? payload.result.filter((value: unknown): value is string => typeof value === 'string')
+    : []
 }
 
-async function deleteSanityDocument(token: string, id: string) {
+async function sanityMutate(token: string, mutations: unknown[]) {
   const response = await fetch(
     `https://${projectId}.api.sanity.io/v${apiVersion}/data/mutate/${dataset}`,
     {
@@ -48,17 +50,13 @@ async function deleteSanityDocument(token: string, id: string) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({
-        mutations: [
-          { delete: { id } }
-        ]
-      })
+      body: JSON.stringify({ mutations })
     }
   )
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(`Sanity 删除失败：${response.status} ${text}`)
+    throw new Error(`Sanity 操作失败：${response.status} ${text}`)
   }
 }
 
@@ -84,10 +82,28 @@ export async function POST(request: Request) {
 
     const baseId = id.replace(/^drafts\./, '')
     const token = requireToken()
-    const existingIds = await queryExistingDocumentIds(token, baseId)
+    const existingIds: string[] = await queryExistingDocumentIds(token, baseId)
+    const idsToRemoveReferencesFor = [baseId, `drafts.${baseId}`]
 
-    for (const existingId of existingIds) {
-      await deleteSanityDocument(token, existingId)
+    if (existingIds.length > 0) {
+      await sanityMutate(token, [
+        {
+          patch: {
+            query: '*[_type == "siteSettings" && featuredPost._ref in $ids]',
+            unset: ['featuredPost'],
+            params: { ids: idsToRemoveReferencesFor }
+          }
+        },
+        {
+          delete: {
+            query: '*[_type == "comment" && post._ref in $ids]',
+            params: { ids: idsToRemoveReferencesFor }
+          }
+        },
+        ...existingIds.map(existingId => ({
+          delete: { id: existingId }
+        }))
+      ])
     }
 
     revalidateAdminAndSite()
